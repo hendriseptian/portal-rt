@@ -162,7 +162,10 @@ async function loadSettings(){
 function setPage(name){
     Object.keys(pageConfig).forEach(k=>{
         const el=document.getElementById(`page-${k}`);
-        if(el)el.classList.toggle("hidden",k!==name);
+        if(el){
+            el.classList.remove("hidden");
+            el.classList.toggle("active",k===name);
+        }
     });
     const cfg=pageConfig[name]||pageConfig.dashboard;
     if(pageTitle)pageTitle.textContent=cfg.title;
