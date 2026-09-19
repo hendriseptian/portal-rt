@@ -2,14 +2,761 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Portal RT - Admin</title>
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Portal RT Admin</title>
+
+    <meta
+        name="description"
+        content="Panel administrasi Portal RT"
+    >
+
+    <link
+        rel="stylesheet"
+        href="/admin/style.css"
+    >
 </head>
+
 <body>
 
-    <h1>Portal RT Admin</h1>
+    <!-- =====================================================
+         LOGIN PAGE
+    ====================================================== -->
 
-    <p>Halaman administrator.</p>
+    <div
+        id="loginPage"
+        class="login-page"
+    >
+
+        <div class="login-container">
+
+            <div class="login-brand">
+
+                <div class="brand-logo">
+                    RT
+                </div>
+
+                <div>
+                    <div class="brand-title">
+                        PORTAL RT
+                    </div>
+
+                    <div class="brand-subtitle">
+                        ADMINISTRATOR
+                    </div>
+                </div>
+
+            </div>
+
+
+            <div class="login-card">
+
+                <div class="login-header">
+
+                    <h1>
+                        Selamat Datang
+                    </h1>
+
+                    <p>
+                        Masuk ke Panel Admin Portal RT
+                    </p>
+
+                </div>
+
+
+                <form
+                    id="loginForm"
+                    autocomplete="off"
+                >
+
+                    <div class="form-group">
+
+                        <label for="username">
+                            Username
+                        </label>
+
+                        <input
+                            type="text"
+                            id="username"
+                            name="username"
+                            placeholder="Masukkan username"
+                            autocomplete="username"
+                            required
+                        >
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label for="password">
+                            Password
+                        </label>
+
+                        <div class="password-wrapper">
+
+                            <input
+                                type="password"
+                                id="password"
+                                name="password"
+                                placeholder="Masukkan password"
+                                autocomplete="current-password"
+                                required
+                            >
+
+                            <button
+                                type="button"
+                                id="togglePassword"
+                                class="password-toggle"
+                                aria-label="Tampilkan password"
+                            >
+                                👁
+                            </button>
+
+                        </div>
+
+                    </div>
+
+
+                    <div
+                        id="loginError"
+                        class="alert alert-error hidden"
+                    ></div>
+
+
+                    <button
+                        type="submit"
+                        id="loginButton"
+                        class="btn btn-primary btn-login"
+                    >
+                        <span id="loginButtonText">
+                            Masuk
+                        </span>
+
+                        <span
+                            id="loginSpinner"
+                            class="spinner hidden"
+                        ></span>
+                    </button>
+
+                </form>
+
+            </div>
+
+
+            <div class="login-footer">
+                Portal RT &copy; <span id="loginYear"></span>
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         ADMIN APPLICATION
+    ====================================================== -->
+
+    <div
+        id="adminApp"
+        class="admin-app hidden"
+    >
+
+        <!-- SIDEBAR -->
+
+        <aside
+            id="sidebar"
+            class="sidebar"
+        >
+
+            <div class="sidebar-brand">
+
+                <div class="brand-logo">
+                    RT
+                </div>
+
+                <div>
+
+                    <div class="sidebar-title">
+                        PORTAL RT
+                    </div>
+
+                    <div class="sidebar-subtitle">
+                        ADMIN
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <nav class="sidebar-nav">
+
+                <div class="nav-section-title">
+                    UTAMA
+                </div>
+
+                <button
+                    class="nav-item active"
+                    data-page="dashboard"
+                >
+                    <span class="nav-icon">⌂</span>
+                    <span>Dashboard</span>
+                </button>
+
+
+                <div class="nav-section-title">
+                    KONTEN
+                </div>
+
+                <button
+                    class="nav-item"
+                    data-page="pengurus"
+                >
+                    <span class="nav-icon">♙</span>
+                    <span>Pengurus</span>
+                </button>
+
+                <button
+                    class="nav-item"
+                    data-page="pengumuman"
+                >
+                    <span class="nav-icon">!</span>
+                    <span>Pengumuman</span>
+                </button>
+
+                <button
+                    class="nav-item"
+                    data-page="agenda"
+                >
+                    <span class="nav-icon">▣</span>
+                    <span>Agenda</span>
+                </button>
+
+                <button
+                    class="nav-item"
+                    data-page="kegiatan"
+                >
+                    <span class="nav-icon">★</span>
+                    <span>Kegiatan</span>
+                </button>
+
+                <button
+                    class="nav-item"
+                    data-page="galeri"
+                >
+                    <span class="nav-icon">▧</span>
+                    <span>Galeri</span>
+                </button>
+
+                <button
+                    class="nav-item"
+                    data-page="video"
+                >
+                    <span class="nav-icon">▶</span>
+                    <span>Video</span>
+                </button>
+
+
+                <div class="nav-section-title">
+                    INFORMASI
+                </div>
+
+                <button
+                    class="nav-item"
+                    data-page="darurat"
+                >
+                    <span class="nav-icon">⚠</span>
+                    <span>Informasi Darurat</span>
+                </button>
+
+
+                <div class="nav-section-title">
+                    SISTEM
+                </div>
+
+                <button
+                    class="nav-item"
+                    data-page="pengaturan"
+                >
+                    <span class="nav-icon">⚙</span>
+                    <span>Pengaturan</span>
+                </button>
+
+            </nav>
+
+
+            <div class="sidebar-bottom">
+
+                <button
+                    id="logoutButton"
+                    class="logout-button"
+                >
+                    <span>↪</span>
+                    <span>Keluar</span>
+                </button>
+
+            </div>
+
+        </aside>
+
+
+        <!-- MAIN -->
+
+        <main class="main-content">
+
+            <!-- TOPBAR -->
+
+            <header class="topbar">
+
+                <button
+                    id="mobileMenuButton"
+                    class="mobile-menu-button"
+                    aria-label="Buka menu"
+                >
+                    ☰
+                </button>
+
+
+                <div class="topbar-title">
+
+                    <h1 id="pageTitle">
+                        Dashboard
+                    </h1>
+
+                    <p id="pageDescription">
+                        Ringkasan Portal RT
+                    </p>
+
+                </div>
+
+
+                <div class="topbar-user">
+
+                    <div class="user-avatar">
+                        A
+                    </div>
+
+                    <div class="user-info">
+
+                        <strong id="userName">
+                            Administrator
+                        </strong>
+
+                        <span id="userRole">
+                            Super Admin
+                        </span>
+
+                    </div>
+
+                </div>
+
+            </header>
+
+
+            <!-- CONTENT -->
+
+            <div class="content-wrapper">
+
+
+                <!-- DASHBOARD -->
+
+                <section
+                    id="page-dashboard"
+                    class="page-section active"
+                >
+
+                    <div class="welcome-card">
+
+                        <div>
+
+                            <div class="welcome-label">
+                                PANEL ADMINISTRASI
+                            </div>
+
+                            <h2 id="welcomeTitle">
+                                Selamat datang, Administrator
+                            </h2>
+
+                            <p>
+                                Kelola informasi dan konten Portal RT
+                                dari satu tempat.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="stats-grid">
+
+                        <div class="stat-card">
+
+                            <div class="stat-icon">
+                                ♙
+                            </div>
+
+                            <div class="stat-content">
+
+                                <span>
+                                    Pengurus
+                                </span>
+
+                                <strong id="statPengurus">
+                                    0
+                                </strong>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="stat-card">
+
+                            <div class="stat-icon">
+                                !
+                            </div>
+
+                            <div class="stat-content">
+
+                                <span>
+                                    Pengumuman
+                                </span>
+
+                                <strong id="statPengumuman">
+                                    0
+                                </strong>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="stat-card">
+
+                            <div class="stat-icon">
+                                ▣
+                            </div>
+
+                            <div class="stat-content">
+
+                                <span>
+                                    Agenda
+                                </span>
+
+                                <strong id="statAgenda">
+                                    0
+                                </strong>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="stat-card">
+
+                            <div class="stat-icon">
+                                ★
+                            </div>
+
+                            <div class="stat-content">
+
+                                <span>
+                                    Kegiatan
+                                </span>
+
+                                <strong id="statKegiatan">
+                                    0
+                                </strong>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="dashboard-grid">
+
+                        <div class="panel-card">
+
+                            <div class="panel-header">
+
+                                <div>
+
+                                    <h3>
+                                        Informasi Website
+                                    </h3>
+
+                                    <p>
+                                        Konfigurasi Portal RT
+                                    </p>
+
+                                </div>
+
+                                <button
+                                    class="small-button"
+                                    data-page="pengaturan"
+                                >
+                                    Pengaturan
+                                </button>
+
+                            </div>
+
+
+                            <div
+                                id="siteInfo"
+                                class="site-info"
+                            >
+
+                                <div class="loading">
+                                    Memuat informasi...
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="panel-card">
+
+                            <div class="panel-header">
+
+                                <div>
+
+                                    <h3>
+                                        Status Sistem
+                                    </h3>
+
+                                    <p>
+                                        Kondisi layanan Portal RT
+                                    </p>
+
+                                </div>
+
+                            </div>
+
+
+                            <div class="system-status">
+
+                                <div class="status-row">
+
+                                    <span class="status-dot online"></span>
+
+                                    <div>
+                                        <strong>
+                                            API Backend
+                                        </strong>
+
+                                        <small>
+                                            Terhubung
+                                        </small>
+                                    </div>
+
+                                </div>
+
+
+                                <div class="status-row">
+
+                                    <span class="status-dot online"></span>
+
+                                    <div>
+                                        <strong>
+                                            Database
+                                        </strong>
+
+                                        <small>
+                                            Supabase PostgreSQL
+                                        </small>
+                                    </div>
+
+                                </div>
+
+
+                                <div class="status-row">
+
+                                    <span class="status-dot online"></span>
+
+                                    <div>
+                                        <strong>
+                                            Authentication
+                                        </strong>
+
+                                        <small>
+                                            JWT aktif
+                                        </small>
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </section>
+
+
+                <!-- EMPTY MODULE PAGES -->
+
+                <section
+                    id="page-pengurus"
+                    class="page-section"
+                >
+
+                    <div class="page-placeholder">
+                        <div class="placeholder-icon">♙</div>
+                        <h2>Pengurus</h2>
+                        <p>
+                            Modul pengelolaan pengurus akan dibuat
+                            pada tahap berikutnya.
+                        </p>
+                    </div>
+
+                </section>
+
+
+                <section
+                    id="page-pengumuman"
+                    class="page-section"
+                >
+
+                    <div class="page-placeholder">
+                        <div class="placeholder-icon">!</div>
+                        <h2>Pengumuman</h2>
+                        <p>
+                            Modul pengumuman akan dibuat
+                            pada tahap berikutnya.
+                        </p>
+                    </div>
+
+                </section>
+
+
+                <section
+                    id="page-agenda"
+                    class="page-section"
+                >
+
+                    <div class="page-placeholder">
+                        <div class="placeholder-icon">▣</div>
+                        <h2>Agenda</h2>
+                        <p>
+                            Modul agenda akan dibuat
+                            pada tahap berikutnya.
+                        </p>
+                    </div>
+
+                </section>
+
+
+                <section
+                    id="page-kegiatan"
+                    class="page-section"
+                >
+
+                    <div class="page-placeholder">
+                        <div class="placeholder-icon">★</div>
+                        <h2>Kegiatan</h2>
+                        <p>
+                            Modul kegiatan akan dibuat
+                            pada tahap berikutnya.
+                        </p>
+                    </div>
+
+                </section>
+
+
+                <section
+                    id="page-galeri"
+                    class="page-section"
+                >
+
+                    <div class="page-placeholder">
+                        <div class="placeholder-icon">▧</div>
+                        <h2>Galeri</h2>
+                        <p>
+                            Modul galeri akan dibuat
+                            pada tahap berikutnya.
+                        </p>
+                    </div>
+
+                </section>
+
+
+                <section
+                    id="page-video"
+                    class="page-section"
+                >
+
+                    <div class="page-placeholder">
+                        <div class="placeholder-icon">▶</div>
+                        <h2>Video</h2>
+                        <p>
+                            Modul video akan dibuat
+                            pada tahap berikutnya.
+                        </p>
+                    </div>
+
+                </section>
+
+
+                <section
+                    id="page-darurat"
+                    class="page-section"
+                >
+
+                    <div class="page-placeholder">
+                        <div class="placeholder-icon">⚠</div>
+                        <h2>Informasi Darurat</h2>
+                        <p>
+                            Modul informasi darurat akan dibuat
+                            pada tahap berikutnya.
+                        </p>
+                    </div>
+
+                </section>
+
+
+                <section
+                    id="page-pengaturan"
+                    class="page-section"
+                >
+
+                    <div class="page-placeholder">
+                        <div class="placeholder-icon">⚙</div>
+                        <h2>Pengaturan</h2>
+                        <p>
+                            Modul pengaturan akan dibuat
+                            pada tahap berikutnya.
+                        </p>
+                    </div>
+
+                </section>
+
+            </div>
+
+        </main>
+
+    </div>
+
+
+    <!-- =====================================================
+         TOAST
+    ====================================================== -->
+
+    <div
+        id="toast"
+        class="toast"
+    ></div>
+
+
+    <script src="/admin/script.js"></script>
 
 </body>
 </html>
