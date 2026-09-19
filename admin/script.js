@@ -151,17 +151,24 @@ function getToken() {
     return localStorage.getItem(
         TOKEN_KEY
     );
+
 }
 
 
 function getStoredUser() {
 
     const raw =
-        localStorage.getItem(USER_KEY);
+        localStorage.getItem(
+            USER_KEY
+        );
+
 
     if (!raw) {
+
         return null;
+
     }
+
 
     try {
 
@@ -170,21 +177,28 @@ function getStoredUser() {
     } catch (error) {
 
         return null;
+
     }
+
 }
 
 
-function saveSession(token, user) {
+function saveSession(
+    token,
+    user
+) {
 
     localStorage.setItem(
         TOKEN_KEY,
         token
     );
 
+
     localStorage.setItem(
         USER_KEY,
         JSON.stringify(user)
     );
+
 }
 
 
@@ -194,9 +208,11 @@ function clearSession() {
         TOKEN_KEY
     );
 
+
     localStorage.removeItem(
         USER_KEY
     );
+
 }
 
 
@@ -221,6 +237,7 @@ async function apiRequest(
 
         headers["Content-Type"] =
             "application/json";
+
     }
 
 
@@ -232,6 +249,7 @@ async function apiRequest(
 
         headers["Authorization"] =
             `Bearer ${token}`;
+
     }
 
 
@@ -256,6 +274,7 @@ async function apiRequest(
     } catch (error) {
 
         data = null;
+
     }
 
 
@@ -270,6 +289,7 @@ async function apiRequest(
         throw new Error(
             "Sesi login sudah berakhir."
         );
+
     }
 
 
@@ -280,10 +300,12 @@ async function apiRequest(
             data?.message ||
             `Request gagal (${response.status})`
         );
+
     }
 
 
     return data;
+
 }
 
 
@@ -291,13 +313,16 @@ async function apiRequest(
    LOGIN
 ========================================================= */
 
-async function handleLogin(event) {
+async function handleLogin(
+    event
+) {
 
     event.preventDefault();
 
 
     const username =
         usernameInput.value.trim();
+
 
     const password =
         passwordInput.value;
@@ -306,13 +331,17 @@ async function handleLogin(event) {
     hideLoginError();
 
 
-    if (!username || !password) {
+    if (
+        !username ||
+        !password
+    ) {
 
         showLoginError(
             "Username dan password wajib diisi."
         );
 
         return;
+
     }
 
 
@@ -343,6 +372,7 @@ async function handleLogin(event) {
             throw new Error(
                 "Login gagal."
             );
+
         }
 
 
@@ -367,10 +397,13 @@ async function handleLogin(event) {
             "Username atau password salah."
         );
 
+
     } finally {
 
         setLoginLoading(false);
+
     }
+
 }
 
 
@@ -383,15 +416,13 @@ async function verifySession() {
     const token =
         getToken();
 
-    const user =
-        getStoredUser();
-
 
     if (!token) {
 
         showLogin();
 
         return false;
+
     }
 
 
@@ -410,6 +441,7 @@ async function verifySession() {
             throw new Error(
                 "Session tidak valid."
             );
+
         }
 
 
@@ -420,11 +452,15 @@ async function verifySession() {
         localStorage.setItem(
             USER_KEY,
             JSON.stringify({
-                id: currentUser.sub,
+                id:
+                    currentUser.sub,
+
                 username:
                     currentUser.username,
+
                 name:
                     currentUser.name,
+
                 role:
                     currentUser.role
             })
@@ -432,6 +468,7 @@ async function verifySession() {
 
 
         showAdmin();
+
 
         return true;
 
@@ -443,7 +480,9 @@ async function verifySession() {
         showLogin();
 
         return false;
+
     }
+
 }
 
 
@@ -457,15 +496,19 @@ function showLogin() {
         "hidden"
     );
 
+
     adminApp.classList.add(
         "hidden"
     );
+
 
     usernameInput.value = "";
 
     passwordInput.value = "";
 
+
     hideLoginError();
+
 }
 
 
@@ -474,6 +517,7 @@ function showAdmin() {
     loginPage.classList.add(
         "hidden"
     );
+
 
     adminApp.classList.remove(
         "hidden"
@@ -484,17 +528,24 @@ function showAdmin() {
         getStoredUser();
 
 
-    updateUserInterface(user);
+    updateUserInterface(
+        user
+    );
 
 
     loadDashboard();
+
 }
 
 
-function updateUserInterface(user) {
+function updateUserInterface(
+    user
+) {
 
     if (!user) {
+
         return;
+
     }
 
 
@@ -513,8 +564,10 @@ function updateUserInterface(user) {
     userName.textContent =
         name;
 
+
     userRole.textContent =
         role;
+
 
     welcomeTitle.textContent =
         `Selamat datang, ${name}`;
@@ -537,11 +590,15 @@ function updateUserInterface(user) {
 
         avatar.textContent =
             firstLetter || "A";
+
     }
+
 }
 
 
-function formatRole(role) {
+function formatRole(
+    role
+) {
 
     const roles = {
 
@@ -565,6 +622,7 @@ function formatRole(role) {
 
     return roles[role] ||
         "Administrator";
+
 }
 
 
@@ -578,6 +636,7 @@ async function loadDashboard() {
         loadStatistics(),
         loadSettings()
     ]);
+
 }
 
 
@@ -609,18 +668,18 @@ async function loadStatistics() {
         statPengurus.textContent =
             pengurus.count ?? 0;
 
+
         statPengumuman.textContent =
             pengumuman.count ?? 0;
+
 
         statAgenda.textContent =
             agenda.count ?? 0;
 
 
         /*
-         * Endpoint kegiatan belum dibuat
-         * pada backend Stage 1.
-         *
-         * Untuk sementara tampilkan 0.
+         * Endpoint kegiatan
+         * belum dibuat.
          */
 
         statKegiatan.textContent =
@@ -633,9 +692,15 @@ async function loadStatistics() {
             "Gagal memuat statistik:",
             error
         );
+
     }
+
 }
 
+
+/* =========================================================
+   SETTINGS
+========================================================= */
 
 async function loadSettings() {
 
@@ -659,6 +724,7 @@ async function loadSettings() {
 
                 map[item.key] =
                     item.value ?? "";
+
             }
         );
 
@@ -700,15 +766,23 @@ async function loadSettings() {
             rows
                 .map(
                     row => `
+
                         <div class="site-info-row">
+
                             <span class="site-info-label">
-                                ${escapeHtml(row[0])}
+                                ${escapeHtml(
+                                    row[0]
+                                )}
                             </span>
 
                             <span class="site-info-value">
-                                ${escapeHtml(row[1])}
+                                ${escapeHtml(
+                                    row[1]
+                                )}
                             </span>
+
                         </div>
+
                     `
                 )
                 .join("");
@@ -723,15 +797,21 @@ async function loadSettings() {
 
 
         siteInfo.innerHTML = `
+
             <div class="loading">
                 Informasi website belum dapat dimuat.
             </div>
+
         `;
+
     }
+
 }
 
 
-function buildRegion(map) {
+function buildRegion(
+    map
+) {
 
     const parts = [
 
@@ -753,30 +833,66 @@ function buildRegion(map) {
     return parts.length
         ? parts.join(", ")
         : "Belum diatur";
+
 }
+
 
 /* =========================================================
    PENGURUS
 ========================================================= */
 
-function renderPengurus() {
+async function renderPengurus() {
 
     const target =
-        document.getElementById("page-pengurus");
+        document.getElementById(
+            "page-pengurus"
+        );
+
 
     if (!target) {
+
         return;
+
     }
 
+
     target.innerHTML = `
+
         <div class="card">
 
-            <div class="card-header">
+            <div
+                style="
+                    display:flex;
+                    justify-content:space-between;
+                    align-items:center;
+                    gap:20px;
+                    padding:24px;
+                    border-bottom:1px solid #e5e7eb;
+                "
+            >
 
                 <div>
-                    <h3>Daftar Pengurus</h3>
-                    <p>Kelola struktur pengurus RT</p>
+
+                    <h3
+                        style="
+                            margin:0 0 5px 0;
+                            font-size:20px;
+                        "
+                    >
+                        Daftar Pengurus
+                    </h3>
+
+                    <p
+                        style="
+                            margin:0;
+                            color:#64748b;
+                        "
+                    >
+                        Kelola struktur pengurus RT
+                    </p>
+
                 </div>
+
 
                 <button
                     class="btn btn-primary"
@@ -788,55 +904,505 @@ function renderPengurus() {
 
             </div>
 
-            <div class="empty-state">
 
-                <div class="empty-icon">
-                    ♟
-                </div>
+            <div
+                id="pengurusList"
+                style="padding:24px;"
+            >
 
-                <h3>Belum ada pengurus</h3>
-
-                <p>
-                    Belum ada data pengurus yang ditambahkan.
-                </p>
-
-                <button
-                    class="btn btn-primary"
-                    type="button"
-                    onclick="showTambahPengurus()"
+                <div
+                    style="
+                        text-align:center;
+                        padding:40px;
+                        color:#64748b;
+                    "
                 >
-                    + Tambah Pengurus
-                </button>
+                    Memuat data pengurus...
+                </div>
 
             </div>
 
         </div>
+
     `;
+
+
+    try {
+
+        const result =
+            await apiRequest(
+                "/pengurus"
+            );
+
+
+        const data =
+            result.data || [];
+
+
+        const list =
+            document.getElementById(
+                "pengurusList"
+            );
+
+
+        if (!list) {
+
+            return;
+
+        }
+
+
+        /*
+         * BELUM ADA DATA
+         */
+
+        if (!data.length) {
+
+            list.innerHTML = `
+
+                <div
+                    style="
+                        text-align:center;
+                        padding:50px 20px;
+                        color:#64748b;
+                    "
+                >
+
+                    <div
+                        style="
+                            font-size:40px;
+                            margin-bottom:15px;
+                        "
+                    >
+                        ♟
+                    </div>
+
+
+                    <h3
+                        style="
+                            margin:0 0 8px 0;
+                            color:#0f172a;
+                        "
+                    >
+                        Belum ada pengurus
+                    </h3>
+
+
+                    <p
+                        style="
+                            margin:0 0 20px 0;
+                        "
+                    >
+                        Belum ada data pengurus yang ditambahkan.
+                    </p>
+
+
+                    <button
+                        class="btn btn-primary"
+                        type="button"
+                        onclick="showTambahPengurus()"
+                    >
+                        + Tambah Pengurus
+                    </button>
+
+                </div>
+
+            `;
+
+
+            return;
+
+        }
+
+
+        /*
+         * ADA DATA
+         */
+
+        list.innerHTML = `
+
+            <div
+                style="
+                    overflow-x:auto;
+                "
+            >
+
+                <table
+                    style="
+                        width:100%;
+                        border-collapse:collapse;
+                    "
+                >
+
+                    <thead>
+
+                        <tr
+                            style="
+                                border-bottom:2px solid #e5e7eb;
+                                text-align:left;
+                            "
+                        >
+
+                            <th
+                                style="
+                                    padding:12px;
+                                    width:60px;
+                                "
+                            >
+                                No
+                            </th>
+
+
+                            <th
+                                style="
+                                    padding:12px;
+                                "
+                            >
+                                Nama
+                            </th>
+
+
+                            <th
+                                style="
+                                    padding:12px;
+                                "
+                            >
+                                Jabatan
+                            </th>
+
+
+                            <th
+                                style="
+                                    padding:12px;
+                                "
+                            >
+                                Periode
+                            </th>
+
+
+                            <th
+                                style="
+                                    padding:12px;
+                                "
+                            >
+                                Status
+                            </th>
+
+
+                            <th
+                                style="
+                                    padding:12px;
+                                    width:120px;
+                                "
+                            >
+                                Aksi
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody>
+
+                        ${data.map(
+                            (item, index) => {
+
+                                const periodeMulai =
+                                    formatTanggal(
+                                        item.periode_mulai
+                                    );
+
+
+                                const periodeSelesai =
+                                    formatTanggal(
+                                        item.periode_selesai
+                                    );
+
+
+                                return `
+
+                                    <tr
+                                        style="
+                                            border-bottom:1px solid #e5e7eb;
+                                        "
+                                    >
+
+                                        <td
+                                            style="
+                                                padding:14px 12px;
+                                            "
+                                        >
+                                            ${index + 1}
+                                        </td>
+
+
+                                        <td
+                                            style="
+                                                padding:14px 12px;
+                                                font-weight:600;
+                                            "
+                                        >
+                                            ${escapeHtml(
+                                                item.nama || "-"
+                                            )}
+                                        </td>
+
+
+                                        <td
+                                            style="
+                                                padding:14px 12px;
+                                            "
+                                        >
+                                            ${escapeHtml(
+                                                item.jabatan || "-"
+                                            )}
+                                        </td>
+
+
+                                        <td
+                                            style="
+                                                padding:14px 12px;
+                                            "
+                                        >
+
+                                            ${
+                                                periodeMulai
+                                            }
+
+                                            <br>
+
+                                            <span
+                                                style="
+                                                    color:#64748b;
+                                                    font-size:12px;
+                                                "
+                                            >
+                                                s/d
+                                                ${
+                                                    periodeSelesai
+                                                }
+                                            </span>
+
+                                        </td>
+
+
+                                        <td
+                                            style="
+                                                padding:14px 12px;
+                                            "
+                                        >
+
+                                            <span
+                                                style="
+                                                    display:inline-block;
+                                                    padding:5px 10px;
+                                                    border-radius:20px;
+                                                    font-size:12px;
+                                                    font-weight:600;
+                                                    background:${
+                                                        item.is_active
+                                                            ? "#dcfce7"
+                                                            : "#f1f5f9"
+                                                    };
+                                                    color:${
+                                                        item.is_active
+                                                            ? "#166534"
+                                                            : "#64748b"
+                                                    };
+                                                "
+                                            >
+                                                ${
+                                                    item.is_active
+                                                        ? "Aktif"
+                                                        : "Tidak Aktif"
+                                                }
+                                            </span>
+
+                                        </td>
+
+
+                                        <td
+                                            style="
+                                                padding:14px 12px;
+                                            "
+                                        >
+
+                                            <button
+                                                class="btn"
+                                                type="button"
+                                                onclick="editPengurus('${item.id}')"
+                                            >
+                                                Edit
+                                            </button>
+
+                                        </td>
+
+                                    </tr>
+
+                                `;
+
+                            }
+                        ).join("")}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        `;
+
+
+    } catch (error) {
+
+        console.error(
+            "Gagal memuat pengurus:",
+            error
+        );
+
+
+        const list =
+            document.getElementById(
+                "pengurusList"
+            );
+
+
+        if (list) {
+
+            list.innerHTML = `
+
+                <div
+                    style="
+                        text-align:center;
+                        padding:40px;
+                        color:#dc2626;
+                    "
+                >
+
+                    <strong>
+                        Gagal memuat data pengurus.
+                    </strong>
+
+                    <br><br>
+
+                    <span
+                        style="
+                            font-size:13px;
+                        "
+                    >
+                        ${escapeHtml(
+                            error.message ||
+                            "Terjadi kesalahan."
+                        )}
+                    </span>
+
+                    <br><br>
+
+                    <button
+                        class="btn"
+                        type="button"
+                        onclick="renderPengurus()"
+                    >
+                        Coba Lagi
+                    </button>
+
+                </div>
+
+            `;
+
+        }
+
+    }
+
 }
 
+
+/* =========================================================
+   FORMAT TANGGAL
+========================================================= */
+
+function formatTanggal(
+    value
+) {
+
+    if (!value) {
+
+        return "-";
+
+    }
+
+
+    try {
+
+        return new Date(
+            value
+        ).toLocaleDateString(
+            "id-ID",
+            {
+                day: "2-digit",
+                month: "2-digit",
+                year: "numeric"
+            }
+        );
+
+    } catch (error) {
+
+        return "-";
+
+    }
+
+}
+
+
+/* =========================================================
+   TAMBAH PENGURUS
+========================================================= */
 
 function showTambahPengurus() {
 
     const target =
-        document.getElementById("page-pengurus");
+        document.getElementById(
+            "page-pengurus"
+        );
+
 
     if (!target) {
+
         return;
+
     }
+
 
     target.innerHTML = `
 
         <div class="card">
 
-            <div class="card-header">
+            <div
+                style="
+                    padding:24px;
+                    border-bottom:1px solid #e5e7eb;
+                "
+            >
 
-                <div>
-                    <h3>Tambah Pengurus</h3>
+                <h3
+                    style="
+                        margin:0 0 6px 0;
+                        font-size:20px;
+                    "
+                >
+                    Tambah Pengurus
+                </h3>
 
-                    <p>
-                        Tambahkan data pengurus RT
-                    </p>
-                </div>
+
+                <p
+                    style="
+                        margin:0;
+                        color:#64748b;
+                    "
+                >
+                    Tambahkan data pengurus RT
+                </p>
 
             </div>
 
@@ -844,9 +1410,9 @@ function showTambahPengurus() {
             <form
                 id="formTambahPengurus"
                 style="
-                    padding: 24px;
-                    display: grid;
-                    gap: 18px;
+                    padding:24px;
+                    display:grid;
+                    gap:18px;
                 "
             >
 
@@ -862,6 +1428,7 @@ function showTambahPengurus() {
                     >
                         Nama Pengurus *
                     </label>
+
 
                     <input
                         id="pengurusNama"
@@ -893,6 +1460,7 @@ function showTambahPengurus() {
                         Jabatan *
                     </label>
 
+
                     <input
                         id="pengurusJabatan"
                         type="text"
@@ -923,6 +1491,7 @@ function showTambahPengurus() {
                         Foto
                     </label>
 
+
                     <input
                         id="pengurusFoto"
                         type="text"
@@ -935,6 +1504,18 @@ function showTambahPengurus() {
                             box-sizing:border-box;
                         "
                     >
+
+
+                    <small
+                        style="
+                            display:block;
+                            margin-top:6px;
+                            color:#64748b;
+                        "
+                    >
+                        Upload foto Google Drive akan kita
+                        integrasikan pada tahap berikutnya.
+                    </small>
 
                 </div>
 
@@ -951,6 +1532,7 @@ function showTambahPengurus() {
                     >
                         Deskripsi
                     </label>
+
 
                     <textarea
                         id="pengurusDeskripsi"
@@ -990,6 +1572,7 @@ function showTambahPengurus() {
                             Urutan
                         </label>
 
+
                         <input
                             id="pengurusUrutan"
                             type="number"
@@ -1020,6 +1603,7 @@ function showTambahPengurus() {
                             Status
                         </label>
 
+
                         <select
                             id="pengurusAktif"
                             style="
@@ -1035,6 +1619,7 @@ function showTambahPengurus() {
                             <option value="true">
                                 Aktif
                             </option>
+
 
                             <option value="false">
                                 Tidak Aktif
@@ -1068,6 +1653,7 @@ function showTambahPengurus() {
                             Periode Mulai
                         </label>
 
+
                         <input
                             id="pengurusMulai"
                             type="date"
@@ -1095,6 +1681,7 @@ function showTambahPengurus() {
                         >
                             Periode Selesai
                         </label>
+
 
                         <input
                             id="pengurusSelesai"
@@ -1130,9 +1717,11 @@ function showTambahPengurus() {
                         Batal
                     </button>
 
+
                     <button
                         type="submit"
                         class="btn btn-primary"
+                        id="btnSimpanPengurus"
                     >
                         Simpan Pengurus
                     </button>
@@ -1142,6 +1731,7 @@ function showTambahPengurus() {
             </form>
 
         </div>
+
     `;
 
 
@@ -1151,41 +1741,61 @@ function showTambahPengurus() {
         );
 
 
-    form.addEventListener(
-        "submit",
-        handleTambahPengurus
-    );
+    if (form) {
+
+        form.addEventListener(
+            "submit",
+            handleTambahPengurus
+        );
+
+    }
+
 }
 
-async function handleTambahPengurus(event) {
+
+/* =========================================================
+   SIMPAN PENGURUS
+========================================================= */
+
+async function handleTambahPengurus(
+    event
+) {
 
     event.preventDefault();
 
 
     const nama =
         document
-            .getElementById("pengurusNama")
+            .getElementById(
+                "pengurusNama"
+            )
             .value
             .trim();
 
 
     const jabatan =
         document
-            .getElementById("pengurusJabatan")
+            .getElementById(
+                "pengurusJabatan"
+            )
             .value
             .trim();
 
 
     const foto =
         document
-            .getElementById("pengurusFoto")
+            .getElementById(
+                "pengurusFoto"
+            )
             .value
             .trim();
 
 
     const deskripsi =
         document
-            .getElementById("pengurusDeskripsi")
+            .getElementById(
+                "pengurusDeskripsi"
+            )
             .value
             .trim();
 
@@ -1193,36 +1803,72 @@ async function handleTambahPengurus(event) {
     const urutan =
         Number(
             document
-                .getElementById("pengurusUrutan")
+                .getElementById(
+                    "pengurusUrutan"
+                )
                 .value
         );
 
 
     const aktif =
         document
-            .getElementById("pengurusAktif")
+            .getElementById(
+                "pengurusAktif"
+            )
             .value === "true";
 
 
     const periodeMulai =
         document
-            .getElementById("pengurusMulai")
+            .getElementById(
+                "pengurusMulai"
+            )
             .value;
 
 
     const periodeSelesai =
         document
-            .getElementById("pengurusSelesai")
+            .getElementById(
+                "pengurusSelesai"
+            )
             .value;
 
 
-    if (!nama || !jabatan) {
+    if (!nama) {
 
         showToast(
-            "Nama dan jabatan wajib diisi."
+            "Nama pengurus wajib diisi."
         );
 
         return;
+
+    }
+
+
+    if (!jabatan) {
+
+        showToast(
+            "Jabatan wajib diisi."
+        );
+
+        return;
+
+    }
+
+
+    const button =
+        document.getElementById(
+            "btnSimpanPengurus"
+        );
+
+
+    if (button) {
+
+        button.disabled = true;
+
+        button.textContent =
+            "Menyimpan...";
+
     }
 
 
@@ -1235,18 +1881,39 @@ async function handleTambahPengurus(event) {
                     method: "POST",
 
                     body: JSON.stringify({
-                        nama: nama,
-                        jabatan: jabatan,
+
+                        nama:
+                            nama,
+
+                        jabatan:
+                            jabatan,
+
                         foto_file_id:
-                            foto || null,
+                            foto ||
+                            null,
+
                         deskripsi:
-                            deskripsi || null,
-                        urutan: urutan || 0,
+                            deskripsi ||
+                            null,
+
+                        urutan:
+                            Number.isFinite(
+                                urutan
+                            )
+                                ? urutan
+                                : 0,
+
                         periode_mulai:
-                            periodeMulai || null,
+                            periodeMulai ||
+                            null,
+
                         periode_selesai:
-                            periodeSelesai || null,
-                        is_active: aktif
+                            periodeSelesai ||
+                            null,
+
+                        is_active:
+                            aktif
+
                     })
                 }
             );
@@ -1258,8 +1925,10 @@ async function handleTambahPengurus(event) {
         ) {
 
             throw new Error(
+                result.message ||
                 "Gagal menyimpan pengurus."
             );
+
         }
 
 
@@ -1268,7 +1937,34 @@ async function handleTambahPengurus(event) {
         );
 
 
-        renderPengurus();
+        await renderPengurus();
+
+
+        /*
+         * Update angka Pengurus
+         * pada dashboard.
+         */
+
+        try {
+
+            const resultPengurus =
+                await apiRequest(
+                    "/pengurus"
+                );
+
+
+            statPengurus.textContent =
+                resultPengurus.count ??
+                0;
+
+        } catch (error) {
+
+            console.error(
+                "Gagal memperbarui statistik pengurus:",
+                error
+            );
+
+        }
 
 
     } catch (error) {
@@ -1283,8 +1979,36 @@ async function handleTambahPengurus(event) {
             error.message ||
             "Gagal menyimpan pengurus."
         );
+
+
+        if (button) {
+
+            button.disabled = false;
+
+            button.textContent =
+                "Simpan Pengurus";
+
+        }
+
     }
+
 }
+
+
+/* =========================================================
+   EDIT PENGURUS
+========================================================= */
+
+function editPengurus(
+    id
+) {
+
+    showToast(
+        "Fitur edit pengurus akan dibuat pada tahap berikutnya."
+    );
+
+}
+
 
 /* =========================================================
    NAVIGATION
@@ -1308,11 +2032,14 @@ function setupNavigation() {
                     const page =
                         item.dataset.page;
 
+
                     navigateToPage(
                         page
                     );
+
                 }
             );
+
         }
     );
 
@@ -1331,7 +2058,9 @@ function setupNavigation() {
                     "nav-item"
                 )
             ) {
+
                 return;
+
             }
 
 
@@ -1342,20 +2071,30 @@ function setupNavigation() {
                     const page =
                         button.dataset.page;
 
+
                     navigateToPage(
                         page
                     );
+
                 }
             );
+
         }
     );
+
 }
 
 
-function navigateToPage(page) {
+function navigateToPage(
+    page
+) {
 
-    if (!pageConfig[page]) {
+    if (
+        !pageConfig[page]
+    ) {
+
         return;
+
     }
 
 
@@ -1371,6 +2110,7 @@ function navigateToPage(page) {
             section.classList.remove(
                 "active"
             );
+
         }
     );
 
@@ -1386,14 +2126,23 @@ function navigateToPage(page) {
         target.classList.add(
             "active"
         );
+
     }
 
-    if (page === "pengurus") {
+
+    /*
+     * KHUSUS PENGURUS
+     */
+
+    if (
+        page === "pengurus"
+    ) {
 
         renderPengurus();
 
     }
-   
+
+
     const navItems =
         document.querySelectorAll(
             ".nav-item"
@@ -1407,12 +2156,14 @@ function navigateToPage(page) {
                 "active",
                 item.dataset.page === page
             );
+
         }
     );
 
 
     pageTitle.textContent =
         pageConfig[page].title;
+
 
     pageDescription.textContent =
         pageConfig[page].description;
@@ -1423,10 +2174,14 @@ function navigateToPage(page) {
     );
 
 
-    if (page === "dashboard") {
+    if (
+        page === "dashboard"
+    ) {
 
         loadDashboard();
+
     }
+
 }
 
 
@@ -1443,6 +2198,7 @@ function handleLogout() {
     showToast(
         "Anda telah keluar."
     );
+
 }
 
 
@@ -1451,6 +2207,13 @@ function handleLogout() {
 ========================================================= */
 
 function setupPasswordToggle() {
+
+    if (!togglePassword) {
+
+        return;
+
+    }
+
 
     togglePassword.addEventListener(
         "click",
@@ -1471,8 +2234,10 @@ function setupPasswordToggle() {
                 isPassword
                     ? "🙈"
                     : "👁";
+
         }
     );
+
 }
 
 
@@ -1487,6 +2252,7 @@ function setLoginLoading(
     loginButton.disabled =
         loading;
 
+
     loginSpinner.classList.toggle(
         "hidden",
         !loading
@@ -1497,11 +2263,12 @@ function setLoginLoading(
         loading
             ? "Memproses..."
             : "Masuk";
+
 }
 
 
 /* =========================================================
-   ERROR
+   LOGIN ERROR
 ========================================================= */
 
 function showLoginError(
@@ -1511,19 +2278,24 @@ function showLoginError(
     loginError.textContent =
         message;
 
+
     loginError.classList.remove(
         "hidden"
     );
+
 }
 
 
 function hideLoginError() {
 
-    loginError.textContent = "";
+    loginError.textContent =
+        "";
+
 
     loginError.classList.add(
         "hidden"
     );
+
 }
 
 
@@ -1534,10 +2306,20 @@ function hideLoginError() {
 let toastTimer = null;
 
 
-function showToast(message) {
+function showToast(
+    message
+) {
+
+    if (!toast) {
+
+        return;
+
+    }
+
 
     toast.textContent =
         message;
+
 
     toast.classList.add(
         "show"
@@ -1560,6 +2342,7 @@ function showToast(message) {
             },
             2800
         );
+
 }
 
 
@@ -1567,29 +2350,39 @@ function showToast(message) {
    SECURITY / HTML ESCAPE
 ========================================================= */
 
-function escapeHtml(value) {
+function escapeHtml(
+    value
+) {
 
-    return String(value)
+    return String(
+        value ?? ""
+    )
+
         .replace(
             /&/g,
             "&amp;"
         )
+
         .replace(
             /</g,
             "&lt;"
         )
+
         .replace(
             />/g,
             "&gt;"
         )
+
         .replace(
             /"/g,
             "&quot;"
         )
+
         .replace(
             /'/g,
             "&#039;"
         );
+
 }
 
 
@@ -1599,6 +2392,13 @@ function escapeHtml(value) {
 
 function setupMobileMenu() {
 
+    if (!mobileMenuButton) {
+
+        return;
+
+    }
+
+
     mobileMenuButton.addEventListener(
         "click",
         () => {
@@ -1606,8 +2406,10 @@ function setupMobileMenu() {
             sidebar.classList.toggle(
                 "open"
             );
+
         }
     );
+
 }
 
 
@@ -1628,7 +2430,9 @@ function setYear() {
         year.textContent =
             new Date()
                 .getFullYear();
+
     }
+
 }
 
 
@@ -1640,28 +2444,44 @@ async function initialize() {
 
     setYear();
 
+
     setupNavigation();
 
+
     setupPasswordToggle();
+
 
     setupMobileMenu();
 
 
-    loginForm.addEventListener(
-        "submit",
-        handleLogin
-    );
+    if (loginForm) {
+
+        loginForm.addEventListener(
+            "submit",
+            handleLogin
+        );
+
+    }
 
 
-    logoutButton.addEventListener(
-        "click",
-        handleLogout
-    );
+    if (logoutButton) {
+
+        logoutButton.addEventListener(
+            "click",
+            handleLogout
+        );
+
+    }
 
 
     await verifySession();
+
 }
 
+
+/* =========================================================
+   START
+========================================================= */
 
 document.addEventListener(
     "DOMContentLoaded",
