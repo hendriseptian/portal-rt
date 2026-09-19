@@ -85,7 +85,16 @@ class LoginRequest(BaseModel):
     username: str
     password: str
 
-
+class PengurusCreate(BaseModel):
+    nama: str
+    jabatan: str
+    foto_file_id: str | None = None
+    deskripsi: str | None = None
+    urutan: int = 0
+    periode_mulai: str | None = None
+    periode_selesai: str | None = None
+    is_active: bool = True
+    
 # =========================================================
 # ROOT / HEALTH
 # =========================================================
@@ -395,6 +404,99 @@ def get_settings():
 # =========================================================
 # PENGURUS
 # =========================================================
+
+@app.post("/api/pengurus")
+def create_pengurus(
+    data: PengurusCreate,
+    current_user=Depends(get_current_user)
+):
+    connection = None
+    cursor = None
+
+    try:
+        connection = get_connection()
+
+        cursor = connection.cursor(
+            cursor_factory=RealDictCursor
+        )
+
+        cursor.execute(
+            """
+            INSERT INTO pengurus (
+                nama,
+                jabatan,
+                foto_file_id,
+                deskripsi,
+                urutan,
+                periode_mulai,
+                periode_selesai,
+                is_active
+            )
+            VALUES (
+                %s,
+                %s,
+                %s,
+                %s,
+                %s,
+                %s,
+                %s,
+                %s
+            )
+            RETURNING
+                id,
+                nama,
+                jabatan,
+                foto_file_id,
+                deskripsi,
+                urutan,
+                periode_mulai,
+                periode_selesai,
+                is_active,
+                created_at,
+                updated_at;
+            """,
+            (
+                data.nama,
+                data.jabatan,
+                data.foto_file_id,
+                data.deskripsi,
+                data.urutan,
+                data.periode_mulai,
+                data.periode_selesai,
+                data.is_active
+            )
+        )
+
+        result = cursor.fetchone()
+
+        connection.commit()
+
+        return {
+            "status": "success",
+            "message": "Pengurus berhasil ditambahkan",
+            "data": result
+        }
+
+    except Exception as error:
+
+        if connection:
+            connection.rollback()
+
+        return JSONResponse(
+            status_code=500,
+            content={
+                "status": "error",
+                "message": str(error)
+            }
+        )
+
+    finally:
+
+        if cursor:
+            cursor.close()
+
+        if connection:
+            connection.close()
 
 @app.get("/api/pengurus")
 def get_pengurus():
