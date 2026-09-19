@@ -817,9 +817,473 @@ function renderPengurus() {
 
 function showTambahPengurus() {
 
-    alert(
-        "Form Tambah Pengurus akan kita buat pada langkah berikutnya."
+    const target =
+        document.getElementById("page-pengurus");
+
+    if (!target) {
+        return;
+    }
+
+    target.innerHTML = `
+
+        <div class="card">
+
+            <div class="card-header">
+
+                <div>
+                    <h3>Tambah Pengurus</h3>
+
+                    <p>
+                        Tambahkan data pengurus RT
+                    </p>
+                </div>
+
+            </div>
+
+
+            <form
+                id="formTambahPengurus"
+                style="
+                    padding: 24px;
+                    display: grid;
+                    gap: 18px;
+                "
+            >
+
+                <div>
+
+                    <label
+                        for="pengurusNama"
+                        style="
+                            display:block;
+                            margin-bottom:7px;
+                            font-weight:600;
+                        "
+                    >
+                        Nama Pengurus *
+                    </label>
+
+                    <input
+                        id="pengurusNama"
+                        type="text"
+                        required
+                        placeholder="Contoh: Budi Santoso"
+                        style="
+                            width:100%;
+                            padding:11px 13px;
+                            border:1px solid #d1d5db;
+                            border-radius:8px;
+                            box-sizing:border-box;
+                        "
+                    >
+
+                </div>
+
+
+                <div>
+
+                    <label
+                        for="pengurusJabatan"
+                        style="
+                            display:block;
+                            margin-bottom:7px;
+                            font-weight:600;
+                        "
+                    >
+                        Jabatan *
+                    </label>
+
+                    <input
+                        id="pengurusJabatan"
+                        type="text"
+                        required
+                        placeholder="Contoh: Ketua RT"
+                        style="
+                            width:100%;
+                            padding:11px 13px;
+                            border:1px solid #d1d5db;
+                            border-radius:8px;
+                            box-sizing:border-box;
+                        "
+                    >
+
+                </div>
+
+
+                <div>
+
+                    <label
+                        for="pengurusFoto"
+                        style="
+                            display:block;
+                            margin-bottom:7px;
+                            font-weight:600;
+                        "
+                    >
+                        Foto
+                    </label>
+
+                    <input
+                        id="pengurusFoto"
+                        type="text"
+                        placeholder="ID file Google Drive (opsional)"
+                        style="
+                            width:100%;
+                            padding:11px 13px;
+                            border:1px solid #d1d5db;
+                            border-radius:8px;
+                            box-sizing:border-box;
+                        "
+                    >
+
+                </div>
+
+
+                <div>
+
+                    <label
+                        for="pengurusDeskripsi"
+                        style="
+                            display:block;
+                            margin-bottom:7px;
+                            font-weight:600;
+                        "
+                    >
+                        Deskripsi
+                    </label>
+
+                    <textarea
+                        id="pengurusDeskripsi"
+                        rows="4"
+                        placeholder="Deskripsi singkat pengurus..."
+                        style="
+                            width:100%;
+                            padding:11px 13px;
+                            border:1px solid #d1d5db;
+                            border-radius:8px;
+                            box-sizing:border-box;
+                            resize:vertical;
+                        "
+                    ></textarea>
+
+                </div>
+
+
+                <div
+                    style="
+                        display:grid;
+                        grid-template-columns:1fr 1fr;
+                        gap:18px;
+                    "
+                >
+
+                    <div>
+
+                        <label
+                            for="pengurusUrutan"
+                            style="
+                                display:block;
+                                margin-bottom:7px;
+                                font-weight:600;
+                            "
+                        >
+                            Urutan
+                        </label>
+
+                        <input
+                            id="pengurusUrutan"
+                            type="number"
+                            min="0"
+                            value="0"
+                            style="
+                                width:100%;
+                                padding:11px 13px;
+                                border:1px solid #d1d5db;
+                                border-radius:8px;
+                                box-sizing:border-box;
+                            "
+                        >
+
+                    </div>
+
+
+                    <div>
+
+                        <label
+                            for="pengurusAktif"
+                            style="
+                                display:block;
+                                margin-bottom:7px;
+                                font-weight:600;
+                            "
+                        >
+                            Status
+                        </label>
+
+                        <select
+                            id="pengurusAktif"
+                            style="
+                                width:100%;
+                                padding:11px 13px;
+                                border:1px solid #d1d5db;
+                                border-radius:8px;
+                                box-sizing:border-box;
+                                background:white;
+                            "
+                        >
+
+                            <option value="true">
+                                Aktif
+                            </option>
+
+                            <option value="false">
+                                Tidak Aktif
+                            </option>
+
+                        </select>
+
+                    </div>
+
+                </div>
+
+
+                <div
+                    style="
+                        display:grid;
+                        grid-template-columns:1fr 1fr;
+                        gap:18px;
+                    "
+                >
+
+                    <div>
+
+                        <label
+                            for="pengurusMulai"
+                            style="
+                                display:block;
+                                margin-bottom:7px;
+                                font-weight:600;
+                            "
+                        >
+                            Periode Mulai
+                        </label>
+
+                        <input
+                            id="pengurusMulai"
+                            type="date"
+                            style="
+                                width:100%;
+                                padding:11px 13px;
+                                border:1px solid #d1d5db;
+                                border-radius:8px;
+                                box-sizing:border-box;
+                            "
+                        >
+
+                    </div>
+
+
+                    <div>
+
+                        <label
+                            for="pengurusSelesai"
+                            style="
+                                display:block;
+                                margin-bottom:7px;
+                                font-weight:600;
+                            "
+                        >
+                            Periode Selesai
+                        </label>
+
+                        <input
+                            id="pengurusSelesai"
+                            type="date"
+                            style="
+                                width:100%;
+                                padding:11px 13px;
+                                border:1px solid #d1d5db;
+                                border-radius:8px;
+                                box-sizing:border-box;
+                            "
+                        >
+
+                    </div>
+
+                </div>
+
+
+                <div
+                    style="
+                        display:flex;
+                        justify-content:flex-end;
+                        gap:10px;
+                        margin-top:10px;
+                    "
+                >
+
+                    <button
+                        type="button"
+                        class="btn"
+                        onclick="renderPengurus()"
+                    >
+                        Batal
+                    </button>
+
+                    <button
+                        type="submit"
+                        class="btn btn-primary"
+                    >
+                        Simpan Pengurus
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+    `;
+
+
+    const form =
+        document.getElementById(
+            "formTambahPengurus"
+        );
+
+
+    form.addEventListener(
+        "submit",
+        handleTambahPengurus
     );
+}
+
+async function handleTambahPengurus(event) {
+
+    event.preventDefault();
+
+
+    const nama =
+        document
+            .getElementById("pengurusNama")
+            .value
+            .trim();
+
+
+    const jabatan =
+        document
+            .getElementById("pengurusJabatan")
+            .value
+            .trim();
+
+
+    const foto =
+        document
+            .getElementById("pengurusFoto")
+            .value
+            .trim();
+
+
+    const deskripsi =
+        document
+            .getElementById("pengurusDeskripsi")
+            .value
+            .trim();
+
+
+    const urutan =
+        Number(
+            document
+                .getElementById("pengurusUrutan")
+                .value
+        );
+
+
+    const aktif =
+        document
+            .getElementById("pengurusAktif")
+            .value === "true";
+
+
+    const periodeMulai =
+        document
+            .getElementById("pengurusMulai")
+            .value;
+
+
+    const periodeSelesai =
+        document
+            .getElementById("pengurusSelesai")
+            .value;
+
+
+    if (!nama || !jabatan) {
+
+        showToast(
+            "Nama dan jabatan wajib diisi."
+        );
+
+        return;
+    }
+
+
+    try {
+
+        const result =
+            await apiRequest(
+                "/pengurus",
+                {
+                    method: "POST",
+
+                    body: JSON.stringify({
+                        nama: nama,
+                        jabatan: jabatan,
+                        foto_file_id:
+                            foto || null,
+                        deskripsi:
+                            deskripsi || null,
+                        urutan: urutan || 0,
+                        periode_mulai:
+                            periodeMulai || null,
+                        periode_selesai:
+                            periodeSelesai || null,
+                        is_active: aktif
+                    })
+                }
+            );
+
+
+        if (
+            result.status !==
+            "success"
+        ) {
+
+            throw new Error(
+                "Gagal menyimpan pengurus."
+            );
+        }
+
+
+        showToast(
+            "Pengurus berhasil ditambahkan."
+        );
+
+
+        renderPengurus();
+
+
+    } catch (error) {
+
+        console.error(
+            "Gagal menambahkan pengurus:",
+            error
+        );
+
+
+        showToast(
+            error.message ||
+            "Gagal menyimpan pengurus."
+        );
+    }
 }
 
 /* =========================================================
