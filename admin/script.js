@@ -1,5 +1,7 @@
 "use strict";
 
+/* Portal RT Admin V7 - scoped module containers */
+
 const API_BASE = "/api";
 const TOKEN_KEY = "portal_rt_token";
 const USER_KEY = "portal_rt_user";
@@ -313,7 +315,7 @@ function pageHeader(title,desc,buttonText,handler){
     return `<div class="card"><div style="display:flex;justify-content:space-between;align-items:center;gap:20px;padding:24px;border-bottom:1px solid #e5e7eb">
         <div><h3 style="margin:0 0 5px;font-size:20px">${title}</h3><p style="margin:0;color:#64748b">${desc}</p></div>
         <button class="btn btn-primary" type="button" onclick="${handler}">${buttonText}</button>
-    </div><div id="moduleList" style="padding:24px">${loadingSkeleton()}</div></div>`;
+    </div><div class="module-list" style="padding:24px">${loadingSkeleton()}</div></div>`;
 }
 function input(label,id,value="",type="text",required=false){
     return `<label style="display:block;margin-bottom:14px"><span style="display:block;margin-bottom:6px;font-weight:600">${label}</span><input id="${id}" type="${type}" value="${escapeHtml(value)}" ${required?"required":""} style="width:100%;padding:10px;border:1px solid #d1d5db;border-radius:8px"></label>`;
@@ -334,10 +336,10 @@ async function renderPengurus(){
     const t=document.getElementById("page-pengurus");if(!t)return;
     t.innerHTML=pageHeader("Daftar Pengurus","Kelola struktur pengurus RT","+ Tambah Pengurus","showTambahPengurus()");
     try{
-        const r=await cachedRequest("/pengurus"),d=r.data||[],l=document.getElementById("moduleList");
+        const r=await cachedRequest("/pengurus"),d=r.data||[],l=t.querySelector(".module-list");
         if(!d.length){l.innerHTML=`<div style="text-align:center;padding:40px;color:#64748b">Belum ada data pengurus.<br><br><button class="btn btn-primary" onclick="showTambahPengurus()">+ Tambah Pengurus</button></div>`;return;}
         l.innerHTML=`<div style="overflow:auto"><table style="width:100%;border-collapse:collapse"><thead><tr><th style="text-align:left;padding:12px">Nama</th><th style="text-align:left;padding:12px">Jabatan</th><th style="text-align:left;padding:12px">Periode</th><th style="text-align:left;padding:12px">Status</th><th style="text-align:left;padding:12px">Aksi</th></tr></thead><tbody>${d.map(x=>`<tr style="border-top:1px solid #eee"><td style="padding:12px">${escapeHtml(x.nama)}</td><td style="padding:12px">${escapeHtml(x.jabatan)}</td><td style="padding:12px">${formatTanggal(x.periode_mulai)} - ${formatTanggal(x.periode_selesai)}</td><td style="padding:12px">${x.is_active?"Aktif":"Tidak Aktif"}</td><td style="padding:12px">${actionButtons("Pengurus",x.id,x.nama)}</td></tr>`).join("")}</tbody></table></div>`;
-    }catch(e){document.getElementById("moduleList").innerHTML=moduleError(e.message,"setPage(window.__activePage||\"dashboard\",true)");}
+    }catch(e){const l=t.querySelector(".module-list");if(l)l.innerHTML=moduleError(e.message,"setPage(window.__activePage||\"dashboard\",true)");}
 }
 function pengurusForm(data={}){
     return `<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px">
@@ -372,10 +374,11 @@ async function editPengurus(id){
 }
 async function hapusPengurus(id,nama){if(!confirmDelete(nama))return;await apiRequest(`/pengurus/${id}`,{method:"DELETE"});invalidateMany(["/pengurus","/dashboard-summary"]);showToast("Pengurus berhasil dihapus");renderPengurus();}
 
-function renderTable(items,columns,type){
-    const l=document.getElementById("moduleList");
+function renderTable(items,columns,type,container=null){
+    const l=container||document.querySelector(".module-list");
+    if(!l)return;
     if(!items.length){l.innerHTML=`<div style="text-align:center;padding:40px;color:#64748b">Belum ada data.</div>`;return;}
-    l.innerHTML=`<div style="overflow:auto"><table style="width:100%;border-collapse:collapse"><thead><tr>${columns.map(c=>`<th style="text-align:left;padding:12px">${c.label}</th>`).join("")}<th style="text-align:left;padding:12px">Aksi</th></tr></thead><tbody>${items.map(x=>`<tr style="border-top:1px solid #eee">${columns.map(c=>`<td style="padding:12px">${c.render?c.render(x):escapeHtml(x[c.key])}</td>`).join("")}<td style="padding:12px">${actionButtons(type,x.id,x.judul||x.nama_album||x.judul||"data")}</td></tr>`).join("")}</tbody></table></div>`;
+    l.innerHTML=`<div style="overflow:auto"><table style="width:100%;border-collapse:collapse"><thead><tr>${columns.map(c=>`<th style="text-align:left;padding:12px">${c.label}</th>`).join("")}<th style="text-align:left;padding:12px">Aksi</th></tr></thead><tbody>${items.map(x=>`<tr style="border-top:1px solid #eee">${columns.map(c=>`<td style="padding:12px">${c.render?c.render(x):escapeHtml(x[c.key])}</td>`).join("")}<td style="padding:12px">${actionButtons(type,x.id,x.judul||x.nama_album||"data")}</td></tr>`).join("")}</tbody></table></div>`;
 }
 
 async function renderPengumuman(){
@@ -383,8 +386,8 @@ async function renderPengumuman(){
     t.innerHTML=pageHeader("Daftar Pengumuman","Kelola pengumuman warga","+ Tambah Pengumuman","showTambahPengumuman()");
     try{const r=await cachedRequest("/pengumuman");renderTable(r.data||[],[
         {label:"Judul",key:"judul"},{label:"Kategori",key:"kategori"},{label:"Prioritas",key:"prioritas"},
-        {label:"Mulai",render:x=>formatTanggal(x.tanggal_mulai)},{label:"Status",key:"status"}],"Pengumuman");
-    }catch(e){document.getElementById("moduleList").innerHTML=moduleError(e.message,"setPage(window.__activePage||\"dashboard\",true)");}
+        {label:"Mulai",render:x=>formatTanggal(x.tanggal_mulai)},{label:"Status",key:"status"}],"Pengumuman",t.querySelector(".module-list"));
+    }catch(e){const l=t.querySelector(".module-list");if(l)l.innerHTML=moduleError(e.message,"setPage(window.__activePage||\"dashboard\",true)");}
 }
 function pengumumanForm(d={}){
     return input("Judul","uJudul",d.judul||"","text",true)+
@@ -409,8 +412,8 @@ async function renderAgenda(){
     try{const r=await cachedRequest("/agenda");renderTable(r.data||[],[
         {label:"Judul",key:"judul"},{label:"Tanggal",render:x=>formatTanggal(x.tanggal)},
         {label:"Waktu",render:x=>`${formatJam(x.waktu_mulai)} - ${formatJam(x.waktu_selesai)}`},
-        {label:"Lokasi",key:"lokasi"},{label:"Status",key:"status"}],"Agenda");
-    }catch(e){document.getElementById("moduleList").innerHTML=moduleError(e.message,"setPage(window.__activePage||\"dashboard\",true)");}
+        {label:"Lokasi",key:"lokasi"},{label:"Status",key:"status"}],"Agenda",t.querySelector(".module-list"));
+    }catch(e){const l=t.querySelector(".module-list");if(l)l.innerHTML=moduleError(e.message,"setPage(window.__activePage||\"dashboard\",true)");}
 }
 function agendaForm(d={}){
     return input("Judul","aJudul",d.judul||"","text",true)+textarea("Deskripsi","aDeskripsi",d.deskripsi||"")+
@@ -432,8 +435,8 @@ async function renderKegiatan(){
     t.innerHTML=pageHeader("Daftar Kegiatan","PKK, Remaja, 17 Agustus dan lainnya","+ Tambah Kegiatan","showTambahKegiatan()");
     try{const r=await cachedRequest("/kegiatan");renderTable(r.data||[],[
         {label:"Judul",key:"judul"},{label:"Kategori",key:"kategori"},{label:"Tanggal",render:x=>formatTanggal(x.tanggal)},
-        {label:"Lokasi",key:"lokasi"},{label:"Status",key:"status"}],"Kegiatan");
-    }catch(e){document.getElementById("moduleList").innerHTML=moduleError(e.message,"setPage(window.__activePage||\"dashboard\",true)");}
+        {label:"Lokasi",key:"lokasi"},{label:"Status",key:"status"}],"Kegiatan",t.querySelector(".module-list"));
+    }catch(e){const l=t.querySelector(".module-list");if(l)l.innerHTML=moduleError(e.message,"setPage(window.__activePage||\"dashboard\",true)");}
 }
 function kegiatanForm(d={}){
     return input("Judul","kJudul",d.judul||"","text",true)+input("Slug","kSlug",d.slug||"")+selectField("Kategori","kKategori",d.kategori||"LAINNYA",[["PKK","PKK"],["REMAJA","Remaja"],["17_AGUSTUS","17 Agustus"],["LAINNYA","Lainnya"]])+
@@ -452,8 +455,8 @@ async function renderGaleri(){
     t.innerHTML=pageHeader("Daftar Galeri","Kelola album foto warga","+ Tambah Album","showTambahGaleri()");
     try{const r=await cachedRequest("/galeri");renderTable(r.data||[],[
         {label:"Album",key:"nama_album"},{label:"Kategori",key:"kategori"},{label:"Tanggal",render:x=>formatTanggal(x.tanggal)},
-        {label:"Jumlah Foto",render:x=>x.jumlah_foto??0},{label:"Status",key:"status"}],"Galeri");
-    }catch(e){document.getElementById("moduleList").innerHTML=moduleError(e.message,"setPage(window.__activePage||\"dashboard\",true)");}
+        {label:"Jumlah Foto",render:x=>x.jumlah_foto??0},{label:"Status",key:"status"}],"Galeri",t.querySelector(".module-list"));
+    }catch(e){const l=t.querySelector(".module-list");if(l)l.innerHTML=moduleError(e.message,"setPage(window.__activePage||\"dashboard\",true)");}
 }
 function galeriForm(d={}){
     return input("Nama Album","gNama",d.nama_album||"","text",true)+input("Slug","gSlug",d.slug||"")+textarea("Deskripsi","gDeskripsi",d.deskripsi||"")+
@@ -472,8 +475,8 @@ async function renderVideo(){
     t.innerHTML=pageHeader("Daftar Video","Kelola dokumentasi video YouTube","+ Tambah Video","showTambahVideo()");
     try{const r=await cachedRequest("/video");renderTable(r.data||[],[
         {label:"Judul",key:"judul"},{label:"YouTube ID",key:"youtube_id"},{label:"Kategori",key:"kategori"},
-        {label:"Tanggal",render:x=>formatTanggal(x.tanggal)},{label:"Status",key:"status"}],"Video");
-    }catch(e){document.getElementById("moduleList").innerHTML=moduleError(e.message,"setPage(window.__activePage||\"dashboard\",true)");}
+        {label:"Tanggal",render:x=>formatTanggal(x.tanggal)},{label:"Status",key:"status"}],"Video",t.querySelector(".module-list"));
+    }catch(e){const l=t.querySelector(".module-list");if(l)l.innerHTML=moduleError(e.message,"setPage(window.__activePage||\"dashboard\",true)");}
 }
 function videoForm(d={}){
     return input("Judul","vJudul",d.judul||"","text",true)+textarea("Deskripsi","vDeskripsi",d.deskripsi||"")+input("YouTube Video ID","vYoutube",d.youtube_id||"","text",true)+
@@ -492,8 +495,8 @@ async function renderDarurat(){
     t.innerHTML=pageHeader("Informasi Darurat","Kontak dan informasi penting","+ Tambah Informasi","showTambahDarurat()");
     try{const r=await cachedRequest("/informasi-darurat");renderTable(r.data||[],[
         {label:"Judul",key:"judul"},{label:"Kategori",key:"kategori"},{label:"Kontak",key:"kontak"},
-        {label:"Nomor",key:"nomor"},{label:"Status",render:x=>x.is_active?"Aktif":"Tidak Aktif"}],"Darurat");
-    }catch(e){document.getElementById("moduleList").innerHTML=moduleError(e.message,"setPage(window.__activePage||\"dashboard\",true)");}
+        {label:"Nomor",key:"nomor"},{label:"Status",render:x=>x.is_active?"Aktif":"Tidak Aktif"}],"Darurat",t.querySelector(".module-list"));
+    }catch(e){const l=t.querySelector(".module-list");if(l)l.innerHTML=moduleError(e.message,"setPage(window.__activePage||\"dashboard\",true)");}
 }
 function daruratForm(d={}){
     return input("Judul","dJudul",d.judul||"","text",true)+textarea("Deskripsi","dDeskripsi",d.deskripsi||"")+
