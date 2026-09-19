@@ -755,6 +755,72 @@ function buildRegion(map) {
         : "Belum diatur";
 }
 
+/* =========================================================
+   PENGURUS
+========================================================= */
+
+function renderPengurus() {
+
+    const target =
+        document.getElementById("page-pengurus");
+
+    if (!target) {
+        return;
+    }
+
+    target.innerHTML = `
+        <div class="card">
+
+            <div class="card-header">
+
+                <div>
+                    <h3>Daftar Pengurus</h3>
+                    <p>Kelola struktur pengurus RT</p>
+                </div>
+
+                <button
+                    class="btn btn-primary"
+                    type="button"
+                    onclick="showTambahPengurus()"
+                >
+                    + Tambah Pengurus
+                </button>
+
+            </div>
+
+            <div class="empty-state">
+
+                <div class="empty-icon">
+                    ♟
+                </div>
+
+                <h3>Belum ada pengurus</h3>
+
+                <p>
+                    Belum ada data pengurus yang ditambahkan.
+                </p>
+
+                <button
+                    class="btn btn-primary"
+                    type="button"
+                    onclick="showTambahPengurus()"
+                >
+                    + Tambah Pengurus
+                </button>
+
+            </div>
+
+        </div>
+    `;
+}
+
+
+function showTambahPengurus() {
+
+    alert(
+        "Form Tambah Pengurus akan kita buat pada langkah berikutnya."
+    );
+}
 
 /* =========================================================
    NAVIGATION
@@ -858,7 +924,12 @@ function navigateToPage(page) {
         );
     }
 
+    if (page === "pengurus") {
 
+        renderPengurus();
+
+    }
+   
     const navItems =
         document.querySelectorAll(
             ".nav-item"
