@@ -40,126 +40,22 @@ async function cachedRequest(endpoint, options={}){
     const force=Boolean(options.force);
     const now=Date.now();
     const hit=apiCache.get(endpoint);
-    if(!force&&hit){
-        if(now-hit.time<CACHE_TTL)return hit.data;
-        // Stale-while-revalidate: tampilkan data lama segera sambil refresh di background.
-        if(!apiPending.has(endpoint))refreshCache(endpoint);
+
+    if(!force&&hit&&now-hit.time<CACHE_TTL){
         return hit.data;
     }
 
-    if(apiPending.has(endpoint))return apiPending.get(endpoint);
-    const promise=apiRequest(endpoint)
-        .then(data=>{apiCache.set(endpoint,{time:Date.now(),data});return data;})
-        .finally(()=>apiPending.delete(endpoint));
-    apiPending.set(endpoint,promise);
-    return promise;
+    // Jangan berbagi Promise antar halaman. Setiap menu mendapatkan request
+    // sendiri agar satu request yang macet tidak membuat menu lain ikut macet.
+    const data=await apiRequest(endpoint,{method:"GET"});
+    apiCache.set(endpoint,{time:Date.now(),data});
+    return data;
 }
 
 function refreshCache(endpoint){
-    if(apiPending.has(endpoint))return apiPending.get(endpoint);
-    const promise=apiRequest(endpoint)
+    return apiRequest(endpoint,{method:"GET"})
         .then(data=>{apiCache.set(endpoint,{time:Date.now(),data});return data;})
-        .catch(err=>{console.warn("Background refresh gagal:",endpoint,err);})
-        .finally(()=>apiPending.delete(endpoint));
-    apiPending.set(endpoint,promise);
-    return promise;
-}
-
-function loadingSkeleton(){
-    return `<div class="portal-skeleton" aria-label="Memuat data">
-        <div class="portal-skeleton-row wide"></div>
-        <div class="portal-skeleton-row mid"></div>
-        <div class="portal-skeleton-row wide"></div>
-        <div class="portal-skeleton-row short"></div>
-        <div class="portal-skeleton-row wide"></div>
-    </div>`;
-}
-
-function moduleError(message, retryHandler){
-    return `<div class="portal-error"><strong>Data belum dapat dimuat.</strong><div style="margin-top:6px">${escapeHtml(message)}</div><button type="button" class="btn" style="margin-top:12px" onclick="${retryHandler}">Coba Lagi</button></div>`;
-}
-
-function bindModuleForm(handler){
-    const form=document.getElementById("moduleForm");
-    if(!form)return;
-    form.onsubmit=async e=>{
-        e.preventDefault();
-        const button=form.querySelector('button[type="submit"]');
-        if(button){button.disabled=true;button.dataset.originalText=button.textContent;button.textContent="Menyimpan...";}
-        try{await handler();}
-        catch(err){showToast(err.message||"Gagal menyimpan data.");}
-        finally{
-            if(button){button.disabled=false;button.textContent=button.dataset.originalText||"Simpan";}
-        }
-    };
-}
-
-const loginPage = document.getElementById("loginPage");
-const adminApp = document.getElementById("adminApp");
-const loginForm = document.getElementById("loginForm");
-const usernameInput = document.getElementById("username");
-const passwordInput = document.getElementById("password");
-const loginButton = document.getElementById("loginButton");
-const loginButtonText = document.getElementById("loginButtonText");
-const loginSpinner = document.getElementById("loginSpinner");
-const loginError = document.getElementById("loginError");
-const togglePassword = document.getElementById("togglePassword");
-const logoutButton = document.getElementById("logoutButton");
-const mobileMenuButton = document.getElementById("mobileMenuButton");
-const sidebar = document.getElementById("sidebar");
-const pageTitle = document.getElementById("pageTitle");
-const pageDescription = document.getElementById("pageDescription");
-const userName = document.getElementById("userName");
-const userRole = document.getElementById("userRole");
-const welcomeTitle = document.getElementById("welcomeTitle");
-const statPengurus = document.getElementById("statPengurus");
-const statPengumuman = document.getElementById("statPengumuman");
-const statAgenda = document.getElementById("statAgenda");
-const statKegiatan = document.getElementById("statKegiatan");
-const siteInfo = document.getElementById("siteInfo");
-const toast = document.getElementById("toast");
-
-const pageConfig = {
-    dashboard:{title:"Dashboard",description:"Ringkasan Portal RT"},
-    pengurus:{title:"Pengurus",description:"Kelola struktur pengurus RT"},
-    pengumuman:{title:"Pengumuman",description:"Kelola pengumuman warga"},
-    agenda:{title:"Agenda",description:"Kelola agenda kegiatan"},
-    kegiatan:{title:"Kegiatan",description:"Kelola kegiatan warga"},
-    galeri:{title:"Galeri",description:"Kelola dokumentasi foto"},
-    video:{title:"Video",description:"Kelola dokumentasi video"},
-    darurat:{title:"Informasi Darurat",description:"Kelola informasi penting dan darurat"},
-    pengaturan:{title:"Pengaturan",description:"Kelola konfigurasi Portal RT"}
-};
-
-function getToken(){return localStorage.getItem(TOKEN_KEY);}
-function getStoredUser(){try{return JSON.parse(localStorage.getItem(USER_KEY)||"null");}catch(e){return null;}}
-function saveSession(token,user){localStorage.setItem(TOKEN_KEY,token);localStorage.setItem(USER_KEY,JSON.stringify(user));}
-function clearSession(){localStorage.removeItem(TOKEN_KEY);localStorage.removeItem(USER_KEY);}
-
-async function apiRequest(endpoint,options={}){
-    const headers={...(options.headers||{})};
-    if(options.body&&!headers["Content-Type"])headers["Content-Type"]="application/json";
-    const token=getToken();
-    if(token)headers.Authorization=`Bearer ${token}`;
-
-    const hasSignal=Boolean(options.signal);
-    const controller=hasSignal?null:new AbortController();
-    const timer=controller?setTimeout(()=>controller.abort(),REQUEST_TIMEOUT):null;
-    try{
-        const requestOptions={...options,headers};
-        if(controller)requestOptions.signal=controller.signal;
-        const response=await fetch(`${API_BASE}${endpoint}`,requestOptions);
-        let data=null;
-        try{data=await response.json();}catch(e){}
-        if(response.status===401){clearSession();showLogin();throw new Error("Sesi login sudah berakhir.");}
-        if(!response.ok)throw new Error(data?.detail||data?.message||`Request gagal (${response.status})`);
-        return data;
-    }catch(e){
-        if(e?.name==="AbortError")throw new Error("Server terlalu lama merespons. Silakan coba lagi.");
-        throw e;
-    }finally{
-        if(timer)clearTimeout(timer);
-    }
+        .catch(err=>{console.warn("Background refresh gagal:",endpoint,err);return null;});
 }
 
 function escapeHtml(v){
@@ -282,7 +178,13 @@ function setPage(name,force=false){
     document.querySelectorAll("[data-page]").forEach(x=>x.classList.toggle("active",x.dataset.page===name));
     if(sidebar)sidebar.classList.remove("open");
     const fn={dashboard:loadDashboard,pengurus:renderPengurus,pengumuman:renderPengumuman,agenda:renderAgenda,kegiatan:renderKegiatan,galeri:renderGaleri,video:renderVideo,darurat:renderDarurat,pengaturan:renderPengaturan}[name];
-    if(fn)fn();
+    if(fn){
+        Promise.resolve(fn()).catch(err=>{
+            console.error("Gagal memuat menu",name,err);
+            const list=document.getElementById("moduleList");
+            if(list)list.innerHTML=moduleError(err?.message||"Gagal memuat data.",`setPage(${JSON.stringify(name)},true)`);
+        });
+    }
 }
 
 function initNavigation(){
