@@ -9,11 +9,13 @@ from datetime import datetime, timedelta, timezone
 from psycopg2.extras import RealDictCursor
 import os
 import re
+from threading import Lock
 import psycopg2
+from psycopg2.pool import ThreadedConnectionPool
 import jwt
 import bcrypt
 
-app = FastAPI(title="Portal RT API", description="Backend API Portal RT", version="2.0.0")
+app = FastAPI(title="Portal RT API", description="Backend API Portal RT", version="2.1.0")
 
 app.add_middleware(
     CORSMiddleware,
@@ -31,11 +33,38 @@ JWT_ALGORITHM = "HS256"
 JWT_EXPIRE_MINUTES = 480
 
 
+_db_pool = None
+_db_pool_lock = Lock()
+
+def get_db_pool():
+    global _db_pool
+    if _db_pool is None:
+        with _db_pool_lock:
+            if _db_pool is None:
+                url = os.getenv("DATABASE_URL")
+                if not url:
+                    raise Exception("DATABASE_URL belum dikonfigurasi")
+                # Pool kecil cocok untuk Vercel serverless + Supabase Session Pooler.
+                # Koneksi dibuat lazy saat instance benar-benar menerima request.
+                _db_pool = ThreadedConnectionPool(1, 3, dsn=url)
+    return _db_pool
+
+
 def get_connection():
-    url = os.getenv("DATABASE_URL")
-    if not url:
-        raise Exception("DATABASE_URL belum dikonfigurasi")
-    return psycopg2.connect(url)
+    return get_db_pool().getconn()
+
+
+def release_connection(conn, close=False):
+    if conn is None:
+        return
+    try:
+        pool = get_db_pool()
+        pool.putconn(conn, close=close)
+    except Exception:
+        try:
+            conn.close()
+        except Exception:
+            pass
 
 
 def slugify(value: str) -> str:
@@ -160,6 +189,10 @@ class SettingData(BaseModel):
     value: Optional[str] = None
 
 
+class SettingsBulkData(BaseModel):
+    values: dict[str, Optional[str]]
+
+
 def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(security)):
     secret = os.getenv("JWT_SECRET")
     if not secret:
@@ -174,6 +207,7 @@ def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(securit
 
 def db_query(sql, params=(), fetch="all", commit=False):
     conn = cur = None
+    broken = False
     try:
         conn = get_connection()
         cur = conn.cursor(cursor_factory=RealDictCursor)
@@ -183,19 +217,23 @@ def db_query(sql, params=(), fetch="all", commit=False):
             conn.commit()
         return result
     except Exception:
+        broken = True
         if conn:
-            conn.rollback()
+            try:
+                conn.rollback()
+            except Exception:
+                pass
         raise
     finally:
         if cur:
             cur.close()
         if conn:
-            conn.close()
+            release_connection(conn, close=broken)
 
 
 @app.get("/api")
 def api_root():
-    return {"status": "ok", "message": "Portal RT API is running", "version": "2.0.0"}
+    return {"status": "ok", "message": "Portal RT API is running", "version": "2.1.0"}
 
 
 @app.get("/api/health")
@@ -257,6 +295,31 @@ def login(request: LoginRequest):
 @app.get("/api/auth/me")
 def auth_me(current_user=Depends(get_current_user)):
     return {"status": "success", "user": current_user}
+
+
+# -------------------- DASHBOARD SUMMARY --------------------
+
+@app.get("/api/dashboard-summary")
+def dashboard_summary():
+    try:
+        row = db_query("""
+            SELECT
+                (SELECT COUNT(*) FROM pengurus) AS pengurus,
+                (SELECT COUNT(*) FROM pengumuman) AS pengumuman,
+                (SELECT COUNT(*) FROM agenda) AS agenda,
+                (SELECT COUNT(*) FROM kegiatan) AS kegiatan
+        """, fetch="one")
+        return {
+            "status": "success",
+            "data": {
+                "pengurus": int(row["pengurus"] or 0),
+                "pengumuman": int(row["pengumuman"] or 0),
+                "agenda": int(row["agenda"] or 0),
+                "kegiatan": int(row["kegiatan"] or 0),
+            }
+        }
+    except Exception as e:
+        return JSONResponse(500, {"status":"error","message":str(e)})
 
 
 # -------------------- PENGURUS --------------------
@@ -351,7 +414,7 @@ def create_pengumuman(data: PengumumanData, current_user=Depends(get_current_use
         return JSONResponse(500,{"status":"error","message":str(e)})
     finally:
         if cur: cur.close()
-        if conn: conn.close()
+        if conn: release_connection(conn, close=bool(getattr(conn, "closed", 0)))
 
 
 @app.put("/api/pengumuman/{item_id}")
@@ -374,7 +437,7 @@ def update_pengumuman(item_id: str,data: PengumumanData,current_user=Depends(get
         return JSONResponse(500,{"status":"error","message":str(e)})
     finally:
         if cur: cur.close()
-        if conn: conn.close()
+        if conn: release_connection(conn, close=bool(getattr(conn, "closed", 0)))
 
 
 @app.delete("/api/pengumuman/{item_id}")
@@ -467,7 +530,7 @@ def create_kegiatan(data: KegiatanData,current_user=Depends(get_current_user)):
         return JSONResponse(500,{"status":"error","message":str(e)})
     finally:
         if cur: cur.close()
-        if conn: conn.close()
+        if conn: release_connection(conn, close=bool(getattr(conn, "closed", 0)))
 
 
 @app.put("/api/kegiatan/{item_id}")
@@ -490,7 +553,7 @@ def update_kegiatan(item_id: str,data: KegiatanData,current_user=Depends(get_cur
         return JSONResponse(500,{"status":"error","message":str(e)})
     finally:
         if cur: cur.close()
-        if conn: conn.close()
+        if conn: release_connection(conn, close=bool(getattr(conn, "closed", 0)))
 
 
 @app.delete("/api/kegiatan/{item_id}")
@@ -534,7 +597,7 @@ def create_galeri(data: GaleriData,current_user=Depends(get_current_user)):
         return JSONResponse(500,{"status":"error","message":str(e)})
     finally:
         if cur: cur.close()
-        if conn: conn.close()
+        if conn: release_connection(conn, close=bool(getattr(conn, "closed", 0)))
 
 
 @app.put("/api/galeri/{item_id}")
@@ -556,7 +619,7 @@ def update_galeri(item_id: str,data: GaleriData,current_user=Depends(get_current
         return JSONResponse(500,{"status":"error","message":str(e)})
     finally:
         if cur: cur.close()
-        if conn: conn.close()
+        if conn: release_connection(conn, close=bool(getattr(conn, "closed", 0)))
 
 
 @app.delete("/api/galeri/{item_id}")
@@ -720,6 +783,35 @@ def get_settings():
         rows=db_query("SELECT id,key,value,description,updated_at FROM settings ORDER BY key")
         return {"status":"success","count":len(rows),"data":rows}
     except Exception as e: return JSONResponse(500,{"status":"error","message":str(e)})
+
+
+@app.put("/api/settings/bulk")
+def update_settings_bulk(data: SettingsBulkData,current_user=Depends(get_current_user)):
+    conn = cur = None
+    try:
+        conn = get_connection()
+        cur = conn.cursor(cursor_factory=RealDictCursor)
+        updated = 0
+        for key, value in data.values.items():
+            cur.execute(
+                """UPDATE settings SET value=%s,updated_at=NOW() WHERE key=%s""",
+                (value or "", key)
+            )
+            updated += cur.rowcount
+        conn.commit()
+        return {"status":"success","message":"Pengaturan berhasil disimpan","updated":updated}
+    except Exception as e:
+        if conn:
+            try:
+                conn.rollback()
+            except Exception:
+                pass
+        return JSONResponse(500,{"status":"error","message":str(e)})
+    finally:
+        if cur:
+            cur.close()
+        if conn:
+            release_connection(conn, close=bool(getattr(conn, "closed", 0)))
 
 
 @app.put("/api/settings/{key}")
