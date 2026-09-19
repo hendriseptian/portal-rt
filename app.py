@@ -498,6 +498,186 @@ def create_pengurus(
         if connection:
             connection.close()
 
+class PengurusUpdate(BaseModel):
+    nama: str
+    jabatan: str
+    foto_file_id: str | None = None
+    deskripsi: str | None = None
+    urutan: int = 0
+    periode_mulai: str | None = None
+    periode_selesai: str | None = None
+    is_active: bool = True
+
+
+@app.put("/api/pengurus/{pengurus_id}")
+def update_pengurus(
+    pengurus_id: str,
+    data: PengurusUpdate,
+    current_user=Depends(get_current_user)
+):
+    connection = None
+    cursor = None
+
+    try:
+
+        connection = get_connection()
+
+        cursor = connection.cursor(
+            cursor_factory=RealDictCursor
+        )
+
+        cursor.execute(
+            """
+            UPDATE pengurus
+            SET
+                nama = %s,
+                jabatan = %s,
+                foto_file_id = %s,
+                deskripsi = %s,
+                urutan = %s,
+                periode_mulai = %s,
+                periode_selesai = %s,
+                is_active = %s,
+                updated_at = NOW()
+            WHERE id = %s
+            RETURNING
+                id,
+                nama,
+                jabatan,
+                foto_file_id,
+                deskripsi,
+                urutan,
+                periode_mulai,
+                periode_selesai,
+                is_active,
+                created_at,
+                updated_at;
+            """,
+            (
+                data.nama,
+                data.jabatan,
+                data.foto_file_id,
+                data.deskripsi,
+                data.urutan,
+                data.periode_mulai,
+                data.periode_selesai,
+                data.is_active,
+                pengurus_id
+            )
+        )
+
+        result = cursor.fetchone()
+
+        if not result:
+
+            connection.rollback()
+
+            raise HTTPException(
+                status_code=404,
+                detail="Pengurus tidak ditemukan"
+            )
+
+        connection.commit()
+
+        return {
+            "status": "success",
+            "message": "Pengurus berhasil diperbarui",
+            "data": result
+        }
+
+    except HTTPException:
+        raise
+
+    except Exception as error:
+
+        if connection:
+            connection.rollback()
+
+        return JSONResponse(
+            status_code=500,
+            content={
+                "status": "error",
+                "message": str(error)
+            }
+        )
+
+    finally:
+
+        if cursor:
+            cursor.close()
+
+        if connection:
+            connection.close()
+
+
+@app.delete("/api/pengurus/{pengurus_id}")
+def delete_pengurus(
+    pengurus_id: str,
+    current_user=Depends(get_current_user)
+):
+    connection = None
+    cursor = None
+
+    try:
+
+        connection = get_connection()
+
+        cursor = connection.cursor(
+            cursor_factory=RealDictCursor
+        )
+
+        cursor.execute(
+            """
+            DELETE FROM pengurus
+            WHERE id = %s
+            RETURNING id;
+            """,
+            (pengurus_id,)
+        )
+
+        result = cursor.fetchone()
+
+        if not result:
+
+            connection.rollback()
+
+            raise HTTPException(
+                status_code=404,
+                detail="Pengurus tidak ditemukan"
+            )
+
+        connection.commit()
+
+        return {
+            "status": "success",
+            "message": "Pengurus berhasil dihapus",
+            "id": str(result["id"])
+        }
+
+    except HTTPException:
+        raise
+
+    except Exception as error:
+
+        if connection:
+            connection.rollback()
+
+        return JSONResponse(
+            status_code=500,
+            content={
+                "status": "error",
+                "message": str(error)
+            }
+        )
+
+    finally:
+
+        if cursor:
+            cursor.close()
+
+        if connection:
+            connection.close()
+
 @app.get("/api/pengurus")
 def get_pengurus():
 
