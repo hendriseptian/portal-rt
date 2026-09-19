@@ -8,6 +8,72 @@ const REQUEST_TIMEOUT = 20 * 1000;
 const apiCache = new Map();
 const apiPending = new Map();
 
+
+const loginForm = document.getElementById("loginForm");
+const usernameInput = document.getElementById("username");
+const passwordInput = document.getElementById("password");
+const loginButton = document.getElementById("loginButton");
+const loginButtonText = document.getElementById("loginButtonText");
+const loginSpinner = document.getElementById("loginSpinner");
+const loginError = document.getElementById("loginError");
+const togglePassword = document.getElementById("togglePassword");
+const logoutButton = document.getElementById("logoutButton");
+const mobileMenuButton = document.getElementById("mobileMenuButton");
+const sidebar = document.getElementById("sidebar");
+const pageTitle = document.getElementById("pageTitle");
+const pageDescription = document.getElementById("pageDescription");
+const userName = document.getElementById("userName");
+const userRole = document.getElementById("userRole");
+const welcomeTitle = document.getElementById("welcomeTitle");
+const statPengurus = document.getElementById("statPengurus");
+const statPengumuman = document.getElementById("statPengumuman");
+const statAgenda = document.getElementById("statAgenda");
+const statKegiatan = document.getElementById("statKegiatan");
+const siteInfo = document.getElementById("siteInfo");
+const toast = document.getElementById("toast");
+
+const pageConfig = {
+    dashboard:{title:"Dashboard",description:"Ringkasan Portal RT"},
+    pengurus:{title:"Pengurus",description:"Kelola struktur pengurus RT"},
+    pengumuman:{title:"Pengumuman",description:"Kelola pengumuman warga"},
+    agenda:{title:"Agenda",description:"Kelola agenda kegiatan"},
+    kegiatan:{title:"Kegiatan",description:"Kelola kegiatan warga"},
+    galeri:{title:"Galeri",description:"Kelola dokumentasi foto"},
+    video:{title:"Video",description:"Kelola dokumentasi video"},
+    darurat:{title:"Informasi Darurat",description:"Kelola informasi penting dan darurat"},
+    pengaturan:{title:"Pengaturan",description:"Kelola konfigurasi Portal RT"}
+};
+
+function getToken(){return localStorage.getItem(TOKEN_KEY);}
+function getStoredUser(){try{return JSON.parse(localStorage.getItem(USER_KEY)||"null");}catch(e){return null;}}
+function saveSession(token,user){localStorage.setItem(TOKEN_KEY,token);localStorage.setItem(USER_KEY,JSON.stringify(user));}
+function clearSession(){localStorage.removeItem(TOKEN_KEY);localStorage.removeItem(USER_KEY);}
+
+async function apiRequest(endpoint,options={}){
+    const headers={...(options.headers||{})};
+    if(options.body&&!headers["Content-Type"])headers["Content-Type"]="application/json";
+    const token=getToken();
+    if(token)headers.Authorization=`Bearer ${token}`;
+    const hasSignal=Boolean(options.signal);
+    const controller=hasSignal?null:new AbortController();
+    const timer=controller?setTimeout(()=>controller.abort(),REQUEST_TIMEOUT):null;
+    try{
+        const requestOptions={...options,headers};
+        if(controller)requestOptions.signal=controller.signal;
+        const response=await fetch(`${API_BASE}${endpoint}`,requestOptions);
+        let data=null;
+        try{data=await response.json();}catch(e){}
+        if(response.status===401){clearSession();showLogin();throw new Error("Sesi login sudah berakhir.");}
+        if(!response.ok)throw new Error(data?.detail||data?.message||`Request gagal (${response.status})`);
+        return data;
+    }catch(e){
+        if(e?.name==="AbortError")throw new Error("Server terlalu lama merespons. Silakan coba lagi.");
+        throw e;
+    }finally{
+        if(timer)clearTimeout(timer);
+    }
+}
+
 function ensurePerformanceStyles(){
     if(document.getElementById("portalPerformanceStyles"))return;
     const style=document.createElement("style");
