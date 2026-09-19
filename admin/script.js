@@ -133,16 +133,20 @@ async function verifySession(){
 }
 
 async function loadDashboard(){
+    // Dashboard hanya mengambil ringkasan, bukan seluruh isi tabel.
+    // Ini mencegah /pengurus, /pengumuman, /agenda, dan /kegiatan
+    // dipanggil bersamaan saat aplikasi baru dibuka.
     await Promise.all([loadStatistics(),loadSettings()]);
 }
 async function loadStatistics(){
     try{
-        const [a,b,c,d]=await Promise.all([apiRequest("/pengurus"),apiRequest("/pengumuman"),apiRequest("/agenda"),apiRequest("/kegiatan")]);
-        if(statPengurus)statPengurus.textContent=a.count??0;
-        if(statPengumuman)statPengumuman.textContent=b.count??0;
-        if(statAgenda)statAgenda.textContent=c.count??0;
-        if(statKegiatan)statKegiatan.textContent=d.count??0;
-    }catch(e){console.error(e);}
+        const r=await apiRequest("/dashboard-summary");
+        const d=r.data||{};
+        if(statPengurus)statPengurus.textContent=d.pengurus??0;
+        if(statPengumuman)statPengumuman.textContent=d.pengumuman??0;
+        if(statAgenda)statAgenda.textContent=d.agenda??0;
+        if(statKegiatan)statKegiatan.textContent=d.kegiatan??0;
+    }catch(e){console.error("Dashboard summary:",e);}
 }
 async function loadSettings(){
     if(!siteInfo)return;
@@ -162,10 +166,7 @@ async function loadSettings(){
 function setPage(name){
     Object.keys(pageConfig).forEach(k=>{
         const el=document.getElementById(`page-${k}`);
-        if(el){
-            el.classList.remove("hidden");
-            el.classList.toggle("active",k===name);
-        }
+        if(el)el.classList.toggle("hidden",k!==name);
     });
     const cfg=pageConfig[name]||pageConfig.dashboard;
     if(pageTitle)pageTitle.textContent=cfg.title;
