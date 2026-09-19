@@ -1,3 +1,4 @@
+/* Portal RT Admin - CRUD Pengurus */
 "use strict";
 
 
@@ -1228,13 +1229,39 @@ async function renderPengurus() {
                                             "
                                         >
 
-                                            <button
-                                                class="btn"
-                                                type="button"
-                                                onclick="editPengurus('${item.id}')"
+                                            <div
+                                                style="
+                                                    display:flex;
+                                                    gap:6px;
+                                                    flex-wrap:wrap;
+                                                "
                                             >
-                                                Edit
-                                            </button>
+
+                                                <button
+                                                    class="btn"
+                                                    type="button"
+                                                    onclick="editPengurus('${item.id}')"
+                                                >
+                                                    Edit
+                                                </button>
+
+
+                                                <button
+                                                    class="btn"
+                                                    type="button"
+                                                    onclick="hapusPengurus(
+                                                        '${item.id}',
+                                                        '${escapeHtml(item.nama || "")}'
+                                                    )"
+                                                    style="
+                                                        color:#dc2626;
+                                                        border-color:#fecaca;
+                                                    "
+                                                >
+                                                    Hapus
+                                                </button>
+
+                                            </div>
 
                                         </td>
 
@@ -1999,16 +2026,760 @@ async function handleTambahPengurus(
    EDIT PENGURUS
 ========================================================= */
 
-function editPengurus(
-    id
-) {
+async function editPengurus(id) {
 
-    showToast(
-        "Fitur edit pengurus akan dibuat pada tahap berikutnya."
-    );
+    try {
+
+        const result =
+            await apiRequest("/pengurus");
+
+
+        const data =
+            result.data || [];
+
+
+        const pengurus =
+            data.find(
+                item =>
+                    String(item.id) ===
+                    String(id)
+            );
+
+
+        if (!pengurus) {
+
+            showToast(
+                "Data pengurus tidak ditemukan."
+            );
+
+            return;
+
+        }
+
+
+        showFormEditPengurus(pengurus);
+
+
+    } catch (error) {
+
+        console.error(
+            "Gagal mengambil data pengurus:",
+            error
+        );
+
+
+        showToast(
+            error.message ||
+            "Gagal mengambil data pengurus."
+        );
+
+    }
 
 }
 
+
+function showFormEditPengurus(pengurus) {
+
+    const target =
+        document.getElementById("page-pengurus");
+
+
+    if (!target) {
+
+        return;
+
+    }
+
+
+    const tanggalMulai =
+        pengurus.periode_mulai
+            ? String(pengurus.periode_mulai).substring(0, 10)
+            : "";
+
+
+    const tanggalSelesai =
+        pengurus.periode_selesai
+            ? String(pengurus.periode_selesai).substring(0, 10)
+            : "";
+
+
+    target.innerHTML = `
+
+        <div class="card">
+
+            <div
+                style="
+                    padding:24px;
+                    border-bottom:1px solid #e5e7eb;
+                "
+            >
+
+                <h3
+                    style="
+                        margin:0 0 6px 0;
+                        font-size:20px;
+                    "
+                >
+                    Edit Pengurus
+                </h3>
+
+
+                <p
+                    style="
+                        margin:0;
+                        color:#64748b;
+                    "
+                >
+                    Perbarui data pengurus RT
+                </p>
+
+            </div>
+
+
+            <form
+                id="formEditPengurus"
+                style="
+                    padding:24px;
+                    display:grid;
+                    gap:18px;
+                "
+            >
+
+                <div>
+
+                    <label
+                        for="editPengurusNama"
+                        style="
+                            display:block;
+                            margin-bottom:7px;
+                            font-weight:600;
+                        "
+                    >
+                        Nama Pengurus *
+                    </label>
+
+
+                    <input
+                        id="editPengurusNama"
+                        type="text"
+                        required
+                        value="${escapeHtml(pengurus.nama || "")}"
+                        style="
+                            width:100%;
+                            padding:11px 13px;
+                            border:1px solid #d1d5db;
+                            border-radius:8px;
+                            box-sizing:border-box;
+                        "
+                    >
+
+                </div>
+
+
+                <div>
+
+                    <label
+                        for="editPengurusJabatan"
+                        style="
+                            display:block;
+                            margin-bottom:7px;
+                            font-weight:600;
+                        "
+                    >
+                        Jabatan *
+                    </label>
+
+
+                    <input
+                        id="editPengurusJabatan"
+                        type="text"
+                        required
+                        value="${escapeHtml(pengurus.jabatan || "")}"
+                        style="
+                            width:100%;
+                            padding:11px 13px;
+                            border:1px solid #d1d5db;
+                            border-radius:8px;
+                            box-sizing:border-box;
+                        "
+                    >
+
+                </div>
+
+
+                <div>
+
+                    <label
+                        for="editPengurusFoto"
+                        style="
+                            display:block;
+                            margin-bottom:7px;
+                            font-weight:600;
+                        "
+                    >
+                        Foto
+                    </label>
+
+
+                    <input
+                        id="editPengurusFoto"
+                        type="text"
+                        value="${escapeHtml(pengurus.foto_file_id || "")}"
+                        placeholder="ID file Google Drive"
+                        style="
+                            width:100%;
+                            padding:11px 13px;
+                            border:1px solid #d1d5db;
+                            border-radius:8px;
+                            box-sizing:border-box;
+                        "
+                    >
+
+                </div>
+
+
+                <div>
+
+                    <label
+                        for="editPengurusDeskripsi"
+                        style="
+                            display:block;
+                            margin-bottom:7px;
+                            font-weight:600;
+                        "
+                    >
+                        Deskripsi
+                    </label>
+
+
+                    <textarea
+                        id="editPengurusDeskripsi"
+                        rows="4"
+                        style="
+                            width:100%;
+                            padding:11px 13px;
+                            border:1px solid #d1d5db;
+                            border-radius:8px;
+                            box-sizing:border-box;
+                            resize:vertical;
+                        "
+                    >${escapeHtml(pengurus.deskripsi || "")}</textarea>
+
+                </div>
+
+
+                <div
+                    style="
+                        display:grid;
+                        grid-template-columns:1fr 1fr;
+                        gap:18px;
+                    "
+                >
+
+                    <div>
+
+                        <label
+                            for="editPengurusUrutan"
+                            style="
+                                display:block;
+                                margin-bottom:7px;
+                                font-weight:600;
+                            "
+                        >
+                            Urutan
+                        </label>
+
+
+                        <input
+                            id="editPengurusUrutan"
+                            type="number"
+                            min="0"
+                            value="${Number(pengurus.urutan || 0)}"
+                            style="
+                                width:100%;
+                                padding:11px 13px;
+                                border:1px solid #d1d5db;
+                                border-radius:8px;
+                                box-sizing:border-box;
+                            "
+                        >
+
+                    </div>
+
+
+                    <div>
+
+                        <label
+                            for="editPengurusAktif"
+                            style="
+                                display:block;
+                                margin-bottom:7px;
+                                font-weight:600;
+                            "
+                        >
+                            Status
+                        </label>
+
+
+                        <select
+                            id="editPengurusAktif"
+                            style="
+                                width:100%;
+                                padding:11px 13px;
+                                border:1px solid #d1d5db;
+                                border-radius:8px;
+                                box-sizing:border-box;
+                                background:white;
+                            "
+                        >
+
+                            <option
+                                value="true"
+                                ${pengurus.is_active ? "selected" : ""}
+                            >
+                                Aktif
+                            </option>
+
+
+                            <option
+                                value="false"
+                                ${!pengurus.is_active ? "selected" : ""}
+                            >
+                                Tidak Aktif
+                            </option>
+
+                        </select>
+
+                    </div>
+
+                </div>
+
+
+                <div
+                    style="
+                        display:grid;
+                        grid-template-columns:1fr 1fr;
+                        gap:18px;
+                    "
+                >
+
+                    <div>
+
+                        <label
+                            for="editPengurusMulai"
+                            style="
+                                display:block;
+                                margin-bottom:7px;
+                                font-weight:600;
+                            "
+                        >
+                            Periode Mulai
+                        </label>
+
+
+                        <input
+                            id="editPengurusMulai"
+                            type="date"
+                            value="${tanggalMulai}"
+                            style="
+                                width:100%;
+                                padding:11px 13px;
+                                border:1px solid #d1d5db;
+                                border-radius:8px;
+                                box-sizing:border-box;
+                            "
+                        >
+
+                    </div>
+
+
+                    <div>
+
+                        <label
+                            for="editPengurusSelesai"
+                            style="
+                                display:block;
+                                margin-bottom:7px;
+                                font-weight:600;
+                            "
+                        >
+                            Periode Selesai
+                        </label>
+
+
+                        <input
+                            id="editPengurusSelesai"
+                            type="date"
+                            value="${tanggalSelesai}"
+                            style="
+                                width:100%;
+                                padding:11px 13px;
+                                border:1px solid #d1d5db;
+                                border-radius:8px;
+                                box-sizing:border-box;
+                            "
+                        >
+
+                    </div>
+
+                </div>
+
+
+                <div
+                    style="
+                        display:flex;
+                        justify-content:flex-end;
+                        gap:10px;
+                        margin-top:10px;
+                    "
+                >
+
+                    <button
+                        type="button"
+                        class="btn"
+                        onclick="renderPengurus()"
+                    >
+                        Batal
+                    </button>
+
+
+                    <button
+                        type="submit"
+                        class="btn btn-primary"
+                        id="btnUpdatePengurus"
+                    >
+                        Simpan Perubahan
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    `;
+
+
+    const form =
+        document.getElementById("formEditPengurus");
+
+
+    if (form) {
+
+        form.addEventListener(
+            "submit",
+            event =>
+                handleEditPengurus(
+                    event,
+                    pengurus.id
+                )
+        );
+
+    }
+
+}
+
+
+async function handleEditPengurus(event, id) {
+
+    event.preventDefault();
+
+
+    const nama =
+        document
+            .getElementById("editPengurusNama")
+            .value
+            .trim();
+
+
+    const jabatan =
+        document
+            .getElementById("editPengurusJabatan")
+            .value
+            .trim();
+
+
+    const foto =
+        document
+            .getElementById("editPengurusFoto")
+            .value
+            .trim();
+
+
+    const deskripsi =
+        document
+            .getElementById("editPengurusDeskripsi")
+            .value
+            .trim();
+
+
+    const urutan =
+        Number(
+            document
+                .getElementById("editPengurusUrutan")
+                .value
+        );
+
+
+    const aktif =
+        document
+            .getElementById("editPengurusAktif")
+            .value === "true";
+
+
+    const periodeMulai =
+        document
+            .getElementById("editPengurusMulai")
+            .value;
+
+
+    const periodeSelesai =
+        document
+            .getElementById("editPengurusSelesai")
+            .value;
+
+
+    if (!nama) {
+
+        showToast(
+            "Nama pengurus wajib diisi."
+        );
+
+        return;
+
+    }
+
+
+    if (!jabatan) {
+
+        showToast(
+            "Jabatan wajib diisi."
+        );
+
+        return;
+
+    }
+
+
+    const button =
+        document.getElementById(
+            "btnUpdatePengurus"
+        );
+
+
+    if (button) {
+
+        button.disabled = true;
+
+        button.textContent =
+            "Menyimpan...";
+
+    }
+
+
+    try {
+
+        const result =
+            await apiRequest(
+                `/pengurus/${id}`,
+                {
+                    method: "PUT",
+
+                    body: JSON.stringify({
+
+                        nama:
+                            nama,
+
+                        jabatan:
+                            jabatan,
+
+                        foto_file_id:
+                            foto ||
+                            null,
+
+                        deskripsi:
+                            deskripsi ||
+                            null,
+
+                        urutan:
+                            Number.isFinite(
+                                urutan
+                            )
+                                ? urutan
+                                : 0,
+
+                        periode_mulai:
+                            periodeMulai ||
+                            null,
+
+                        periode_selesai:
+                            periodeSelesai ||
+                            null,
+
+                        is_active:
+                            aktif
+
+                    })
+                }
+            );
+
+
+        if (
+            result.status !==
+            "success"
+        ) {
+
+            throw new Error(
+                result.message ||
+                "Gagal memperbarui pengurus."
+            );
+
+        }
+
+
+        showToast(
+            "Pengurus berhasil diperbarui."
+        );
+
+
+        await renderPengurus();
+
+
+        try {
+
+            const resultPengurus =
+                await apiRequest(
+                    "/pengurus"
+                );
+
+
+            statPengurus.textContent =
+                resultPengurus.count ??
+                0;
+
+        } catch (error) {
+
+            console.error(
+                "Gagal memperbarui statistik pengurus:",
+                error
+            );
+
+        }
+
+
+    } catch (error) {
+
+        console.error(
+            "Gagal memperbarui pengurus:",
+            error
+        );
+
+
+        showToast(
+            error.message ||
+            "Gagal memperbarui pengurus."
+        );
+
+
+        if (button) {
+
+            button.disabled = false;
+
+            button.textContent =
+                "Simpan Perubahan";
+
+        }
+
+    }
+
+}
+
+
+async function hapusPengurus(id, nama) {
+
+    const yakin =
+        window.confirm(
+            `Apakah Anda yakin ingin menghapus pengurus "${nama}"?`
+        );
+
+
+    if (!yakin) {
+
+        return;
+
+    }
+
+
+    try {
+
+        const result =
+            await apiRequest(
+                `/pengurus/${id}`,
+                {
+                    method: "DELETE"
+                }
+            );
+
+
+        if (
+            result.status !==
+            "success"
+        ) {
+
+            throw new Error(
+                result.message ||
+                "Gagal menghapus pengurus."
+            );
+
+        }
+
+
+        showToast(
+            "Pengurus berhasil dihapus."
+        );
+
+
+        await renderPengurus();
+
+
+        try {
+
+            const resultPengurus =
+                await apiRequest(
+                    "/pengurus"
+                );
+
+
+            statPengurus.textContent =
+                resultPengurus.count ??
+                0;
+
+        } catch (error) {
+
+            console.error(
+                "Gagal memperbarui statistik:",
+                error
+            );
+
+        }
+
+
+    } catch (error) {
+
+        console.error(
+            "Gagal menghapus pengurus:",
+            error
+        );
+
+
+        showToast(
+            error.message ||
+            "Gagal menghapus pengurus."
+        );
+
+    }
+
+}
 
 /* =========================================================
    NAVIGATION
