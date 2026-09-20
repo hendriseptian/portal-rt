@@ -3,215 +3,189 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Portal informasi warga RT">
+    <meta name="description" content="Portal Informasi Warga">
+    <meta name="theme-color" content="#0b6b50">
     <title>Portal RT</title>
     <link rel="stylesheet" href="/style.css">
 </head>
 <body>
-    <header class="site-header">
-        <div class="container nav-wrap">
-            <a class="brand" href="#beranda" aria-label="Portal RT">
-                <span class="brand-mark">RT</span>
-                <span>
+    <div class="topbar">
+        <div class="container topbar-inner">
+            <div class="location-line">
+                <span class="top-icon">⌖</span>
+                <span id="topArea">RT 00 / RW 00</span>
+                <span class="divider">|</span>
+                <span id="topRegion">Informasi wilayah</span>
+            </div>
+            <div class="top-actions">
+                <span id="todayText"></span>
+                <div class="search-box">
+                    <input id="searchInput" type="search" placeholder="Cari informasi..." aria-label="Cari informasi">
+                    <button id="searchBtn" aria-label="Cari">⌕</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <header class="main-header">
+        <div class="container nav-inner">
+            <a class="brand" href="#beranda">
+                <div class="brand-logo" id="brandLogo">RT</div>
+                <div class="brand-copy">
                     <strong id="brandName">PORTAL RT</strong>
-                    <small id="brandArea">INFORMASI WARGA</small>
-                </span>
+                    <small id="brandArea">RT 00 • RW 00</small>
+                </div>
             </a>
-
             <button class="menu-toggle" id="menuToggle" aria-label="Buka menu">☰</button>
-
             <nav class="main-nav" id="mainNav">
-                <a href="#beranda">Beranda</a>
+                <a class="active" href="#beranda">Beranda</a>
                 <a href="#pengumuman">Pengumuman</a>
                 <a href="#agenda">Agenda</a>
                 <a href="#kegiatan">Kegiatan</a>
                 <a href="#galeri">Galeri</a>
                 <a href="#video">Video</a>
                 <a href="#pengurus">Pengurus</a>
+                <a href="#darurat">Informasi</a>
             </nav>
+            <a class="nav-contact" href="#darurat">☎ Kontak</a>
         </div>
     </header>
 
-    <main>
-        <section class="hero" id="beranda">
-            <div class="container hero-grid">
-                <div>
-                    <span class="eyebrow">PORTAL INFORMASI WARGA</span>
+    <main id="beranda">
+        <section class="hero">
+            <div class="hero-overlay"></div>
+            <div class="container hero-content">
+                <div class="hero-main">
+                    <div class="eyebrow">SELAMAT DATANG DI</div>
                     <h1 id="heroTitle">Portal RT</h1>
+                    <div class="hero-region" id="heroRegion">RT 00 / RW 00</div>
                     <p id="heroSlogan">Guyub, Rukun, Bersama</p>
-                    <p class="hero-desc" id="heroDescription">
-                        Informasi, agenda, kegiatan, dan dokumentasi warga dalam satu tempat.
-                    </p>
+                    <p class="hero-desc" id="heroDescription">Portal Informasi Warga</p>
                     <div class="hero-actions">
-                        <a href="#pengumuman" class="btn btn-primary">Lihat Informasi</a>
-                        <a href="#agenda" class="btn btn-light">Agenda Warga</a>
+                        <a class="btn btn-primary" href="#pengumuman">▣ &nbsp; Lihat Pengumuman</a>
+                        <a class="btn btn-outline" href="#agenda">▦ &nbsp; Lihat Agenda</a>
                     </div>
                 </div>
-
-                <div class="hero-card">
-                    <div class="hero-card-label">WILAYAH</div>
-                    <div class="hero-card-title" id="heroArea">RT 00 / RW 00</div>
-                    <div class="hero-card-text" id="heroRegion">Informasi wilayah</div>
+                <div class="hero-quote">
+                    <span class="quote-mark">“</span>
+                    <p>Lingkungan yang baik berawal dari warga yang peduli.</p>
+                    <small id="heroAreaQuote">RT 00 / RW 00</small>
                 </div>
+                <div class="hero-dots"><span class="dot active"></span><span class="dot"></span><span class="dot"></span></div>
             </div>
         </section>
 
-        <section class="quick-section">
-            <div class="container quick-grid">
-                <a href="#pengumuman" class="quick-card">
-                    <span class="quick-icon">📢</span>
-                    <span><b>Pengumuman</b><small>Informasi terbaru warga</small></span>
-                </a>
-                <a href="#agenda" class="quick-card">
-                    <span class="quick-icon">📅</span>
-                    <span><b>Agenda</b><small>Jadwal kegiatan</small></span>
-                </a>
-                <a href="#kegiatan" class="quick-card">
-                    <span class="quick-icon">⭐</span>
-                    <span><b>Kegiatan</b><small>Aktivitas warga</small></span>
-                </a>
-                <a href="#darurat" class="quick-card danger">
-                    <span class="quick-icon">⚠️</span>
-                    <span><b>Informasi Darurat</b><small>Kontak penting</small></span>
-                </a>
+        <section class="quick-wrap">
+            <div class="container">
+                <div class="quick-grid">
+                    <a class="quick-card blue" href="#pengumuman"><span class="quick-icon">📢</span><span class="quick-arrow">→</span><strong>Pengumuman</strong><small>Informasi terbaru warga</small></a>
+                    <a class="quick-card green" href="#agenda"><span class="quick-icon">▦</span><span class="quick-arrow">→</span><strong>Agenda</strong><small>Jadwal kegiatan</small></a>
+                    <a class="quick-card yellow" href="#kegiatan"><span class="quick-icon">★</span><span class="quick-arrow">→</span><strong>Kegiatan</strong><small>Aktivitas warga</small></a>
+                    <a class="quick-card pink" href="#galeri"><span class="quick-icon">▧</span><span class="quick-arrow">→</span><strong>Galeri</strong><small>Dokumentasi kegiatan</small></a>
+                    <a class="quick-card purple" href="#video"><span class="quick-icon">▶</span><span class="quick-arrow">→</span><strong>Video</strong><small>Informasi dalam video</small></a>
+                    <a class="quick-card orange" href="#darurat"><span class="quick-icon">⚠</span><span class="quick-arrow">→</span><strong>Informasi Darurat</strong><small>Kontak penting</small></a>
+                </div>
+                <div class="quote-banner">
+                    <span class="quote-leaf">❧</span>
+                    <span>“Warga yang kompak membuat lingkungan menjadi lebih nyaman.”</span>
+                    <strong id="quoteArea">#GuyubRukun</strong>
+                </div>
             </div>
         </section>
 
         <section class="section" id="pengumuman">
             <div class="container">
                 <div class="section-head">
-                    <div>
-                        <span class="eyebrow">INFORMASI</span>
-                        <h2>Pengumuman Terbaru</h2>
-                    </div>
+                    <div><span class="section-label">INFORMASI</span><h2>Pengumuman Terbaru</h2></div>
                     <span class="section-note">Untuk warga RT</span>
                 </div>
-                <div id="announcementList" class="announcement-list">
-                    <div class="loading">Memuat pengumuman...</div>
-                </div>
+                <div class="announcement-grid" id="announcementList"><div class="empty">Memuat pengumuman...</div></div>
             </div>
         </section>
 
-        <section class="section section-alt" id="agenda">
+        <section class="section section-soft" id="agenda">
             <div class="container">
                 <div class="section-head">
-                    <div>
-                        <span class="eyebrow">JADWAL</span>
-                        <h2>Agenda Terdekat</h2>
-                    </div>
+                    <div><span class="section-label">JADWAL</span><h2>Agenda Terdekat</h2></div>
+                    <a class="section-link" href="#agenda">Lihat semua →</a>
                 </div>
-                <div id="agendaList" class="agenda-grid">
-                    <div class="loading">Memuat agenda...</div>
-                </div>
+                <div class="agenda-grid" id="agendaList"><div class="empty">Memuat agenda...</div></div>
             </div>
         </section>
 
         <section class="section" id="kegiatan">
             <div class="container">
                 <div class="section-head">
-                    <div>
-                        <span class="eyebrow">AKTIVITAS</span>
-                        <h2>Kegiatan Warga</h2>
-                    </div>
+                    <div><span class="section-label">AKTIVITAS</span><h2>Kegiatan Warga</h2></div>
+                    <span class="section-note">Kebersamaan dalam kegiatan</span>
                 </div>
-                <div class="filter-row" id="activityFilters">
+                <div class="filters" id="activityFilters">
                     <button class="filter active" data-category="ALL">Semua</button>
                     <button class="filter" data-category="PKK">PKK</button>
                     <button class="filter" data-category="REMAJA">Remaja</button>
                     <button class="filter" data-category="17_AGUSTUS">17 Agustus</button>
                     <button class="filter" data-category="LAINNYA">Lainnya</button>
                 </div>
-                <div id="activityList" class="activity-grid">
-                    <div class="loading">Memuat kegiatan...</div>
-                </div>
+                <div class="activity-grid" id="activityList"><div class="empty">Memuat kegiatan...</div></div>
             </div>
         </section>
 
-        <section class="section section-alt" id="galeri">
+        <section class="section section-soft" id="galeri">
             <div class="container">
                 <div class="section-head">
-                    <div>
-                        <span class="eyebrow">DOKUMENTASI</span>
-                        <h2>Galeri</h2>
-                    </div>
-                    <span class="section-note">Foto akan terhubung ke Google Drive nanti</span>
+                    <div><span class="section-label">DOKUMENTASI</span><h2>Galeri Warga</h2></div>
+                    <span class="section-note">Momen kegiatan warga</span>
                 </div>
-                <div id="galleryList" class="gallery-grid">
-                    <div class="loading">Memuat galeri...</div>
-                </div>
+                <div class="gallery-grid" id="galleryList"><div class="empty">Memuat galeri...</div></div>
             </div>
         </section>
 
         <section class="section" id="video">
             <div class="container">
                 <div class="section-head">
-                    <div>
-                        <span class="eyebrow">DOKUMENTASI</span>
-                        <h2>Video</h2>
-                    </div>
+                    <div><span class="section-label">MEDIA</span><h2>Video Warga</h2></div>
+                    <span class="section-note">Dokumentasi dalam video</span>
                 </div>
-                <div id="videoList" class="video-grid">
-                    <div class="loading">Memuat video...</div>
-                </div>
+                <div class="video-grid" id="videoList"><div class="empty">Memuat video...</div></div>
             </div>
         </section>
 
-        <section class="section section-alt" id="pengurus">
+        <section class="section section-soft" id="pengurus">
             <div class="container">
                 <div class="section-head">
-                    <div>
-                        <span class="eyebrow">STRUKTUR</span>
-                        <h2>Pengurus RT</h2>
-                    </div>
+                    <div><span class="section-label">STRUKTUR</span><h2>Pengurus RT</h2></div>
+                    <span class="section-note">Pengurus dan pelayanan warga</span>
                 </div>
-                <div id="officialList" class="official-grid">
-                    <div class="loading">Memuat pengurus...</div>
-                </div>
+                <div class="official-grid" id="officialList"><div class="empty">Memuat pengurus...</div></div>
             </div>
         </section>
 
         <section class="section emergency-section" id="darurat">
             <div class="container">
-                <div class="section-head">
-                    <div>
-                        <span class="eyebrow">PENTING</span>
-                        <h2>Informasi Darurat</h2>
-                    </div>
+                <div class="emergency-head">
+                    <div><span class="section-label light">PENTING</span><h2>Informasi Darurat</h2><p>Kontak dan informasi penting untuk warga.</p></div>
+                    <span class="emergency-symbol">⚠</span>
                 </div>
-                <div id="emergencyList" class="emergency-grid">
-                    <div class="loading">Memuat informasi...</div>
-                </div>
+                <div class="emergency-grid" id="emergencyList"><div class="empty dark">Memuat informasi darurat...</div></div>
             </div>
         </section>
     </main>
 
-    <footer class="site-footer">
+    <footer class="footer">
         <div class="container footer-grid">
             <div>
-                <div class="brand footer-brand">
-                    <span class="brand-mark">RT</span>
-                    <span>
-                        <strong id="footerName">PORTAL RT</strong>
-                        <small id="footerArea">INFORMASI WARGA</small>
-                    </span>
-                </div>
-                <p id="footerDescription">Portal informasi warga.</p>
+                <div class="footer-brand"><span class="footer-logo">RT</span><strong id="footerName">PORTAL RT</strong></div>
+                <p id="footerDescription">Portal Informasi Warga</p>
+                <small id="footerArea">RT 00 • RW 00</small>
             </div>
-            <div class="footer-links">
-                <a href="#beranda">Beranda</a>
-                <a href="#pengumuman">Pengumuman</a>
-                <a href="#agenda">Agenda</a>
-                <a href="#kegiatan">Kegiatan</a>
-            </div>
+            <div><h3>Navigasi</h3><a href="#pengumuman">Pengumuman</a><a href="#agenda">Agenda</a><a href="#kegiatan">Kegiatan</a><a href="#galeri">Galeri</a></div>
+            <div><h3>Informasi</h3><a href="#video">Video</a><a href="#pengurus">Pengurus</a><a href="#darurat">Kontak Penting</a><a href="/admin">Admin</a></div>
         </div>
-        <div class="footer-bottom">
-            <div class="container">
-                <span id="footerCopyright">© 2026 Portal RT</span>
-                <a href="/admin">Admin</a>
-            </div>
-        </div>
+        <div class="footer-bottom"><div class="container"><span id="footerCopyright">© 2026 Portal RT</span><span>Guyub • Rukun • Bersama</span></div></div>
     </footer>
 
+    <button class="back-top" id="backTop" aria-label="Kembali ke atas">↑</button>
+    <div class="toast" id="toast"></div>
     <script src="/script.js"></script>
 </body>
 </html>
