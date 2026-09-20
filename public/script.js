@@ -44,31 +44,79 @@ function renderEmergency(rows){
  const b=$("#emergencyList");if(!rows.length){b.innerHTML=`<div class="empty dark">Belum ada informasi darurat aktif.</div>`;return}
  b.innerHTML=rows.map(x=>`<article class="emergency-card" data-search="${esc(`${x.judul} ${x.deskripsi||""} ${x.kontak||""}`)}"><h3>⚠ ${esc(x.judul)}</h3><div class="card-text">${esc(x.deskripsi||"")}</div>${x.kontak||x.nomor?`<div class="contact">${esc(x.kontak||"")}${x.nomor?` • ${esc(x.nomor)}`:""}</div>`:""}${x.url?`<div style="margin-top:10px"><a class="btn btn-light" href="${esc(x.url)}" target="_blank" rel="noopener">Buka Informasi</a></div>`:""}</article>`).join("");
 }
+function getPage(){
+ const params=new URLSearchParams(location.search);
+ const allowed=["beranda","pengumuman","agenda","kegiatan","galeri","video","pengurus","darurat"];
+ const page=(params.get("page")||"beranda").toLowerCase();
+ return allowed.includes(page)?page:"beranda";
+}
+function pageTitle(page){
+ return {
+  beranda:"Beranda",
+  pengumuman:"Pengumuman",
+  agenda:"Agenda",
+  kegiatan:"Kegiatan",
+  galeri:"Galeri",
+  video:"Video",
+  pengurus:"Pengurus",
+  darurat:"Informasi Darurat"
+ }[page]||"Beranda";
+}
+function showPage(page,push=true){
+ const current=["beranda","pengumuman","agenda","kegiatan","galeri","video","pengurus","darurat"].includes(page)?page:"beranda";
+ const isHome=current==="beranda";
+ document.body.classList.toggle("home-mode",isHome);
+ document.body.classList.toggle("content-mode",!isHome);
+ $$(".page-view").forEach(section=>{
+   section.classList.toggle("active",section.id===current);
+ });
+ $$("#mainNav a").forEach(link=>{
+   const target=link.dataset.page||"beranda";
+   link.classList.toggle("active",target===current);
+ });
+ document.querySelectorAll("[data-page-link]").forEach(link=>{
+   const target=link.dataset.pageLink||"beranda";
+   link.classList.toggle("active",target===current);
+ });
+ if(push){
+   const url=current==="beranda"?"/":`/?page=${encodeURIComponent(current)}`;
+   history.pushState({page:current},"",url);
+ }
+ window.scrollTo({top:0,left:0,behavior:"auto"});
+ const site=state.settings.site_name||"Portal RT";
+ document.title=`${pageTitle(current)} - ${site}`;
+}
+function setupPageRouter(){
+ showPage(getPage(),false);
+ $$("[data-page]").forEach(link=>{
+   link.addEventListener("click",event=>{
+     event.preventDefault();
+     showPage(link.dataset.page||"beranda",true);
+     $("#mainNav")?.classList.remove("open");
+   });
+ });
+ $$("[data-page-link]").forEach(link=>{
+   link.addEventListener("click",event=>{
+     event.preventDefault();
+     showPage(link.dataset.pageLink||"beranda",true);
+   });
+ });
+ window.addEventListener("popstate",()=>showPage(getPage(),false));
+}
 function setup(){
  $("#todayText").textContent=new Intl.DateTimeFormat("id-ID",{weekday:"long",day:"2-digit",month:"long",year:"numeric"}).format(new Date());
  $$(".filter").forEach(b=>b.addEventListener("click",()=>{$$(".filter").forEach(x=>x.classList.remove("active"));b.classList.add("active");renderActivities(state.activities,b.dataset.category||"ALL")}));
  $("#menuToggle")?.addEventListener("click",()=>$("#mainNav").classList.toggle("open"));
- $$("#mainNav a").forEach(a=>a.addEventListener("click",()=>$("#mainNav").classList.remove("open")));
- const links=$$("#mainNav a");
- const views=["pengumuman","agenda","kegiatan","galeri","video","pengurus","darurat"];
- const setView=()=>{
-   const requested=(location.hash||"#beranda").slice(1);
-   const target=views.includes(requested)?requested:"beranda";
-   document.body.classList.toggle("home-view",target==="beranda");
-   document.body.classList.toggle("content-view",target!=="beranda");
-   $$(".page-view").forEach(s=>s.classList.toggle("active-view",s.id===target));
-   links.forEach(a=>a.classList.toggle("active",a.getAttribute("href")==="#"+target));
-   window.scrollTo({top:0,behavior:"instant"});
- };
- window.addEventListener("hashchange",setView);
- setView();
  const top=$("#backTop");window.addEventListener("scroll",()=>top.classList.toggle("show",scrollY>500));top.addEventListener("click",()=>scrollTo({top:0,behavior:"smooth"}));
- const search=()=>{const q=$("#searchInput").value.trim().toLowerCase();if(!q)return toast("Ketik kata yang ingin dicari.");const f=$$("[data-search]").find(e=>(e.dataset.search||"").toLowerCase().includes(q));if(f){f.scrollIntoView({behavior:"smooth",block:"center"});f.classList.add("search-hit");setTimeout(()=>f.classList.remove("search-hit"),1500);toast("Informasi ditemukan.")}else toast("Informasi tidak ditemukan.")};$("#searchBtn").onclick=search;$("#searchInput").onkeydown=e=>{if(e.key==="Enter")search()};
+ const search=()=>{const q=$("#searchInput").value.trim().toLowerCase();if(!q)return toast("Ketik kata yang ingin dicari.");const f=$$("[data-search]").find(e=>(e.dataset.search||"").toLowerCase().includes(q));if(f){f.scrollIntoView({behavior:"smooth",block:"center"});f.classList.add("search-hit");setTimeout(()=>f.classList.remove("search-hit"),1500);toast("Informasi ditemukan.")}else toast("Informasi tidak ditemukan.")};
+ $("#searchBtn").onclick=search;$("#searchInput").onkeydown=e=>{if(e.key==="Enter")search()};
+ setupPageRouter();
 }
+
 async function load(){
  const t=await Promise.allSettled([api("/settings"),api("/pengumuman"),api("/agenda"),api("/kegiatan"),api("/galeri"),api("/video"),api("/pengurus"),api("/darurat")]);
  const [s,a,g,k,ga,v,p,d]=t;
- if(s.status==="fulfilled")applySettings(settingMap(s.value.data));
+ if(s.status==="fulfilled"){applySettings(settingMap(s.value.data));showPage(getPage(),false);}
  if(a.status==="fulfilled")renderAnnouncements(a.value.data||[]);else $("#announcementList").innerHTML=`<div class="empty">Pengumuman belum dapat dimuat.</div>`;
  if(g.status==="fulfilled")renderAgenda(g.value.data||[]);else $("#agendaList").innerHTML=`<div class="empty">Agenda belum dapat dimuat.</div>`;
  if(k.status==="fulfilled")renderActivities(k.value.data||[]);else $("#activityList").innerHTML=`<div class="empty">Kegiatan belum dapat dimuat.</div>`;
