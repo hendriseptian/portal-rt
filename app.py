@@ -26,8 +26,8 @@ app.add_middleware(
 if os.path.isdir("admin"):
     app.mount("/admin", StaticFiles(directory="admin", html=True), name="admin")
 
-if os.path.isdir("public"):
-    app.mount("/public", StaticFiles(directory="public", html=True), name="public")
+# Public assets are served with explicit FastAPI routes for Vercel compatibility.
+# This avoids relying on StaticFiles mounting for the /public directory.
 
 security = HTTPBearer()
 JWT_ALGORITHM = "HS256"
@@ -739,6 +739,27 @@ def update_setting(key: str,data: SettingData,current_user=Depends(get_current_u
 
 
 # -------------------- PUBLIC SITE --------------------
+
+@app.get("/public/index.html", include_in_schema=False)
+def public_index_file():
+    path = os.path.join("public", "index.html")
+    if os.path.isfile(path):
+        return FileResponse(path, media_type="text/html")
+    raise HTTPException(status_code=404, detail="Public index not found")
+
+@app.get("/public/style.css", include_in_schema=False)
+def public_style_file():
+    path = os.path.join("public", "style.css")
+    if os.path.isfile(path):
+        return FileResponse(path, media_type="text/css")
+    raise HTTPException(status_code=404, detail="Public CSS not found")
+
+@app.get("/public/script.js", include_in_schema=False)
+def public_script_file():
+    path = os.path.join("public", "script.js")
+    if os.path.isfile(path):
+        return FileResponse(path, media_type="application/javascript")
+    raise HTTPException(status_code=404, detail="Public JavaScript not found")
 
 @app.get("/", include_in_schema=False)
 def public_home():
