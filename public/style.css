@@ -16,19 +16,25 @@
 @media(max-width:800px){.container{width:min(100% - 28px,1180px)}.topbar-inner{padding:8px 0;align-items:flex-start}.location-line{flex-wrap:wrap}.top-actions{display:none}.nav-inner{min-height:68px}.menu-toggle{display:block}.nav-contact{display:none}.main-nav{position:absolute;left:14px;right:14px;top:66px;display:none;flex-direction:column;align-items:stretch;gap:0;padding:8px;background:#fff;border:1px solid var(--line);border-radius:15px;box-shadow:var(--shadow)}.main-nav.open{display:flex}.main-nav a{padding:12px;border-radius:8px}.main-nav a:after{display:none}.main-nav a:hover,.main-nav a.active{background:var(--primary-soft)}.hero,.hero-content{min-height:590px}.hero-content{align-items:flex-start;padding-top:90px}.hero h1{font-size:46px}.hero-region{font-size:25px}.hero-actions .btn{width:100%}.quick-grid{grid-template-columns:repeat(2,1fr)}.section{padding:62px 0}.section-head{align-items:flex-start;flex-direction:column}.agenda-grid,.activity-grid,.gallery-grid,.video-grid,.emergency-grid{grid-template-columns:1fr}.official-grid{grid-template-columns:repeat(2,1fr)}.footer-grid{grid-template-columns:1fr 1fr;gap:30px}}
 @media(max-width:520px){.topbar{display:none}.quick-grid{grid-template-columns:1fr 1fr;gap:10px}.quick-card{min-height:130px;padding:14px}.quick-card strong{font-size:13px}.quick-card small{font-size:10px}.quote-banner{align-items:flex-start;font-size:12px}.quote-banner strong{display:none}.announcement-card{flex-direction:column;gap:8px}.official-grid{grid-template-columns:1fr 1fr}.footer-grid{grid-template-columns:1fr}.footer-bottom .container{flex-direction:column;justify-content:center;gap:3px;padding:10px 0}}
 
-/* V4: Beranda hanya menampilkan hero. Konten dibuka melalui menu atas. */
-body.home-view { overflow: hidden; height: 100vh; }
-body.content-view { overflow-x: hidden; overflow-y: auto; }
-.page-view { display: none; }
-.page-view.active-view { display: block; }
-#beranda { min-height: calc(100vh - 120px); }
-.hero { min-height: calc(100vh - 120px); }
-.hero-content { min-height: calc(100vh - 120px); width: 100%; }
-.hero-main { max-width: 900px; }
-.hero h1 { font-size: clamp(48px, 7vw, 92px); }
-.hero-region { max-width: 1050px; }
-@media (max-width:800px) {
-    .container { padding-left:18px; padding-right:18px; }
-    .hero, .hero-content { min-height: calc(100vh - 68px); }
-    .hero-content { padding-top: 80px; }
+/* V6 - Home is a fullscreen landing page; other menus are separate views. */
+html.home-mode, body.home-mode{height:100%;overflow:hidden}
+body.home-mode .page-view,
+body.home-mode .footer{display:none!important}
+body.home-mode main{min-height:calc(100vh - 120px)}
+body.home-mode #beranda{display:block!important;min-height:calc(100vh - 120px)}
+body.home-mode .hero{min-height:calc(100vh - 120px);height:calc(100vh - 120px)}
+body.home-mode .hero-content{min-height:calc(100vh - 120px);height:calc(100vh - 120px)}
+body.content-mode{overflow-x:hidden;overflow-y:auto}
+body.content-mode #beranda{display:none!important}
+body.content-mode .page-view{display:none}
+body.content-mode .page-view.active{display:block}
+body.content-mode .footer{display:block}
+body.content-mode main{min-height:calc(100vh - 120px)}
+body.content-mode .page-view.active{animation:pageIn .22s ease both}
+@keyframes pageIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+@media(max-width:800px){
+  body.home-mode main{min-height:calc(100vh - 68px)}
+  body.home-mode #beranda,
+  body.home-mode .hero,
+  body.home-mode .hero-content{min-height:calc(100vh - 68px);height:calc(100vh - 68px)}
 }
