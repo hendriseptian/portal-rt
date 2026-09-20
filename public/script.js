@@ -11,7 +11,7 @@ const toast=m=>{const e=$("#toast");if(!e)return;e.textContent=m;e.classList.add
 function applySettings(m){
  state.settings=m;const site=m.site_name||"Portal RT",slogan=m.slogan||"Guyub, Rukun, Bersama",desc=m.site_description||"Portal Informasi Warga",rt=m.rt_name||"RT 00",rw=m.rw_name||"RW 00";
  const region=[m.desa_name,m.kecamatan_name,m.kabupaten_name,m.provinsi_name].filter(Boolean).join(", "),area=`${rt} / ${rw}`;
- document.title=site;$("#brandName").textContent=site.toUpperCase();$("#brandArea").textContent=`${rt} • ${rw}`;$("#topArea").textContent=area;$("#topRegion").textContent=region||"Informasi wilayah";$("#heroTitle").textContent=site;$("#heroRegion").textContent=region?`${area} • ${region}`:area;$("#heroSlogan").textContent=slogan;$("#heroDescription").textContent=desc;$("#heroAreaQuote").textContent=area;$("#quoteArea").textContent=`#${site.replace(/[^a-zA-Z0-9]+/g,"")}`;$("#footerName").textContent=site.toUpperCase();$("#footerArea").textContent=`${rt} • ${rw}`;$("#footerDescription").textContent=desc;$("#footerCopyright").textContent=`© ${new Date().getFullYear()} ${site}`;
+ document.title=site;$("#brandName").textContent=site.toUpperCase();$("#brandArea").textContent=`${rt} • ${rw}`;$("#topArea").textContent=area;$("#topRegion").textContent=region||"Informasi wilayah";$("#heroTitle").textContent=site;$("#heroRegion").textContent=region?`${area} • ${region}`:area;$("#heroSlogan").textContent=slogan;$("#heroDescription").textContent=desc;$("#footerName").textContent=site.toUpperCase();$("#footerArea").textContent=`${rt} • ${rw}`;$("#footerDescription").textContent=desc;$("#footerCopyright").textContent=`© ${new Date().getFullYear()} ${site}`;
  if(m.logo_file_id&&/^https?:\/\//i.test(m.logo_file_id))$("#brandLogo").innerHTML=`<img src="${esc(m.logo_file_id)}" alt="Logo" loading="lazy">`;
 }
 function renderAnnouncements(rows){
@@ -49,8 +49,19 @@ function setup(){
  $$(".filter").forEach(b=>b.addEventListener("click",()=>{$$(".filter").forEach(x=>x.classList.remove("active"));b.classList.add("active");renderActivities(state.activities,b.dataset.category||"ALL")}));
  $("#menuToggle")?.addEventListener("click",()=>$("#mainNav").classList.toggle("open"));
  $$("#mainNav a").forEach(a=>a.addEventListener("click",()=>$("#mainNav").classList.remove("open")));
- const sections=$$("main section[id]"),links=$$("#mainNav a");new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){links.forEach(a=>a.classList.remove("active"));$(`#mainNav a[href="#${e.target.id}"]`)?.classList.add("active")}}),{rootMargin:"-35% 0px -55% 0px"}).observe;
- sections.forEach(s=>new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){links.forEach(a=>a.classList.remove("active"));$(`#mainNav a[href="#${e.target.id}"]`)?.classList.add("active")}}),{rootMargin:"-35% 0px -55% 0px"}).observe(s));
+ const links=$$("#mainNav a");
+ const views=["pengumuman","agenda","kegiatan","galeri","video","pengurus","darurat"];
+ const setView=()=>{
+   const requested=(location.hash||"#beranda").slice(1);
+   const target=views.includes(requested)?requested:"beranda";
+   document.body.classList.toggle("home-view",target==="beranda");
+   document.body.classList.toggle("content-view",target!=="beranda");
+   $$(".page-view").forEach(s=>s.classList.toggle("active-view",s.id===target));
+   links.forEach(a=>a.classList.toggle("active",a.getAttribute("href")==="#"+target));
+   window.scrollTo({top:0,behavior:"instant"});
+ };
+ window.addEventListener("hashchange",setView);
+ setView();
  const top=$("#backTop");window.addEventListener("scroll",()=>top.classList.toggle("show",scrollY>500));top.addEventListener("click",()=>scrollTo({top:0,behavior:"smooth"}));
  const search=()=>{const q=$("#searchInput").value.trim().toLowerCase();if(!q)return toast("Ketik kata yang ingin dicari.");const f=$$("[data-search]").find(e=>(e.dataset.search||"").toLowerCase().includes(q));if(f){f.scrollIntoView({behavior:"smooth",block:"center"});f.classList.add("search-hit");setTimeout(()=>f.classList.remove("search-hit"),1500);toast("Informasi ditemukan.")}else toast("Informasi tidak ditemukan.")};$("#searchBtn").onclick=search;$("#searchInput").onkeydown=e=>{if(e.key==="Enter")search()};
 }
