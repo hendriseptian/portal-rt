@@ -29,7 +29,7 @@
 
     <header class="main-header">
         <div class="container nav-inner">
-            <a class="brand" href="#beranda">
+            <a class="brand" href="/" data-page="beranda">
                 <div class="brand-logo" id="brandLogo">RT</div>
                 <div class="brand-copy">
                     <strong id="brandName">PORTAL RT</strong>
@@ -38,16 +38,16 @@
             </a>
             <button class="menu-toggle" id="menuToggle" aria-label="Buka menu">☰</button>
             <nav class="main-nav" id="mainNav">
-                <a class="active" href="#beranda">Beranda</a>
-                <a href="#pengumuman">Pengumuman</a>
-                <a href="#agenda">Agenda</a>
-                <a href="#kegiatan">Kegiatan</a>
-                <a href="#galeri">Galeri</a>
-                <a href="#video">Video</a>
-                <a href="#pengurus">Pengurus</a>
-                <a href="#darurat">Informasi</a>
+                <a class="active" href="/" data-page="beranda">Beranda</a>
+                <a href="/?page=pengumuman" data-page="pengumuman">Pengumuman</a>
+                <a href="/?page=agenda" data-page="agenda">Agenda</a>
+                <a href="/?page=kegiatan" data-page="kegiatan">Kegiatan</a>
+                <a href="/?page=galeri" data-page="galeri">Galeri</a>
+                <a href="/?page=video" data-page="video">Video</a>
+                <a href="/?page=pengurus" data-page="pengurus">Pengurus</a>
+                <a href="/?page=darurat" data-page="darurat">Informasi</a>
             </nav>
-            <a class="nav-contact" href="#darurat">☎ Kontak</a>
+            <a class="nav-contact" href="/?page=darurat" data-page="darurat">☎ Kontak</a>
         </div>
     </header>
 
@@ -62,8 +62,8 @@
                     <p id="heroSlogan">Guyub, Rukun, Bersama</p>
                     <p class="hero-desc" id="heroDescription">Portal Informasi Warga</p>
                     <div class="hero-actions">
-                        <a class="btn btn-primary" href="#pengumuman">▣ &nbsp; Lihat Pengumuman</a>
-                        <a class="btn btn-outline" href="#agenda">▦ &nbsp; Lihat Agenda</a>
+                        <a class="btn btn-primary" href="/?page=pengumuman" data-page="pengumuman">▣ &nbsp; Lihat Pengumuman</a>
+                        <a class="btn btn-outline" href="/?page=agenda" data-page="agenda">▦ &nbsp; Lihat Agenda</a>
                     </div>
                 </div>
                 <div class="hero-dots"><span class="dot active"></span><span class="dot"></span><span class="dot"></span></div>
@@ -84,7 +84,7 @@
             <div class="container">
                 <div class="section-head">
                     <div><span class="section-label">JADWAL</span><h2>Agenda Terdekat</h2></div>
-                    <a class="section-link" href="#agenda">Lihat semua →</a>
+                    <a class="section-link" href="/?page=agenda" data-page="agenda">Lihat semua →</a>
                 </div>
                 <div class="agenda-grid" id="agendaList"><div class="empty">Memuat agenda...</div></div>
             </div>
@@ -155,8 +155,8 @@
                 <p id="footerDescription">Portal Informasi Warga</p>
                 <small id="footerArea">RT 00 • RW 00</small>
             </div>
-            <div><h3>Navigasi</h3><a href="#pengumuman">Pengumuman</a><a href="#agenda">Agenda</a><a href="#kegiatan">Kegiatan</a><a href="#galeri">Galeri</a></div>
-            <div><h3>Informasi</h3><a href="#video">Video</a><a href="#pengurus">Pengurus</a><a href="#darurat">Kontak Penting</a><a href="/admin">Admin</a></div>
+            <div><h3>Navigasi</h3><a href="/?page=pengumuman" data-page="pengumuman">Pengumuman</a><a href="/?page=agenda" data-page="agenda">Agenda</a><a href="/?page=kegiatan" data-page="kegiatan">Kegiatan</a><a href="/?page=galeri" data-page="galeri">Galeri</a></div>
+            <div><h3>Informasi</h3><a href="/?page=video" data-page="video">Video</a><a href="/?page=pengurus" data-page="pengurus">Pengurus</a><a href="/?page=darurat" data-page="darurat">Kontak Penting</a><a href="/admin">Admin</a></div>
         </div>
         <div class="footer-bottom"><div class="container"><span id="footerCopyright">© 2026 Portal RT</span><span>Guyub • Rukun • Bersama</span></div></div>
     </footer>
